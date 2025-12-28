@@ -1,7 +1,7 @@
 import Hero from '../components/Hero';
 import Bar from '../components/Bar';
 import HeadCategory from '../components/HeadCategory';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import ProductGrid from '../components/product/ProductGrid';
 
 export default async function HomePage() {
