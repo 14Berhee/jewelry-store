@@ -1,17 +1,21 @@
 import { prisma } from './prisma';
-import { Prisma } from '@prisma/client';
 
 export async function getProduct() {
-  return await prisma.product.findMany({
-    include: {
-      images: true,
-      category: true,
-      metal: true,
-    },
-  });
-}
+  // Skip database calls during build
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
+    return [];
+  }
 
-// Using Prisma types
-export async function createProduct(data: Prisma.ProductCreateInput) {
-  return await prisma.product.create({ data });
+  try {
+    return await prisma.product.findMany({
+      include: {
+        images: true,
+        category: true,
+        metal: true,
+      },
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+    return [];
+  }
 }
