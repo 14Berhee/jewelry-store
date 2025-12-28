@@ -5,7 +5,9 @@ import { prisma } from '@/lib/prisma';
 import ProductGrid from '../components/product/ProductGrid';
 
 export default async function HomePage() {
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    include: { products: true },
+  });
   const products = await prisma.product.findMany({
     include: { images: true, metal: true, category: true },
   });
