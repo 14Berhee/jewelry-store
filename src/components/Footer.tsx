@@ -1,3 +1,5 @@
+import { Link } from 'lucide-react';
+
 export default function Footer() {
   return (
     <footer className="mt-12 w-full bg-gray-900 text-gray-200">
@@ -15,24 +17,24 @@ export default function Footer() {
           <h3 className="mb-2 text-lg font-semibold">Quick Links</h3>
           <ul>
             <li>
-              <a href="/" className="hover:text-white">
+              <Link href="/" className="hover:text-white">
                 Home
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/products" className="hover:text-white">
+              <Link href="/products" className="hover:text-white">
                 Products
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/categories" className="hover:text-white">
+              <Link href="/categories" className="hover:text-white">
                 Categories
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/cart" className="hover:text-white">
+              <Link href="/cart" className="hover:text-white">
                 Cart
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

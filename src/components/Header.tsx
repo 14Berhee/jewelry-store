@@ -6,13 +6,23 @@ import { ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/src/store/useCartStore';
 import { CartPanel } from './cart/CartPanel';
 
-export default function Header({ products }: { products: any[] }) {
+interface ProductImage {
+  url: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  images: ProductImage[];
+}
+
+export default function Header({ products }: { products: Product[] }) {
   const [isOpen, setIsOpen] = useState(false); // mobile menu
   const [isCartOpen, setIsCartOpen] = useState(false); // cart panel
 
   const items = useCartStore((state) => state.items);
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
-  const removeFromCart = useCartStore((s) => s.removeFromCart);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-md">

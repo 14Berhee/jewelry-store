@@ -23,21 +23,19 @@ model User {
   cartItems CartItem[]
   reviews   Review[]
 }
-
 model Product {
-  id         Int         @id @default(autoincrement())
+  id         Int              @id @default(autoincrement())
   name       String
   price      Float
-  images     ProductImage[] 
-  categoryId Int?
+  images     ProductImage[]
+ categoryId Int?
+  category   Category?        @relation("CategoryProducts", fields: [categoryId], references: [id], onDelete: SetNull)
   metalId    Int?
-  metal      Metal?     @relation(fields: [metalId], references: [id], onDelete: SetNull)
-  category Category?  @relation("CategoryProducts", fields: [categoryId], references: [id], onDelete: SetNull)
+  metal      Metal?           @relation(fields: [metalId], references: [id], onDelete: SetNull) 
   cartItems  CartItem[]
   orderItems OrderItem[]
   reviews    Review[]
 }
-
 model Metal {
   id       Int       @id @default(autoincrement())
   name     String    @unique // "Gold", "Silver", "Platinum"
@@ -80,7 +78,7 @@ model Category {
   name      String
   slug      String   @unique
   imageUrl  String 
-  products  Product[] @relation("CategoryProducts")
+   products  Product[] @relation("CategoryProducts")
 }
 
 model Review {

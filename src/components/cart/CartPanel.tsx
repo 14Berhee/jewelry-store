@@ -1,30 +1,38 @@
 'use client';
 
+import Image from 'next/image';
 import { useCartStore } from '@/src/store/useCartStore';
 
-export function CartPanel({
-  products,
-  isOpen,
-  onClose,
-}: {
-  products: any[];
+interface ProductImage {
+  url: string;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  images: ProductImage[];
+}
+
+interface CartPanelProps {
+  products: Product[];
   isOpen: boolean;
   onClose: () => void;
-}) {
+}
+
+export function CartPanel({ products, isOpen, onClose }: CartPanelProps) {
   const items = useCartStore((s) => s.items);
   const removeFromCart = useCartStore((s) => s.removeFromCart);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
 
   const totalPrice = items.reduce((sum, item) => {
-    const product = products.find(
-      (p: { id: number }) => p.id === Number(item.productId)
-    );
+    const product = products.find((p) => p.id === Number(item.productId));
     return product ? sum + product.price * item.quantity : sum;
   }, 0);
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('mn-MN').format(price) + '₮';
-  console.log(items);
+
   return (
     <>
       {isOpen && (
@@ -49,15 +57,17 @@ export function CartPanel({
           ) : (
             items.map((item) => {
               const product = products.find(
-                (p: { id: number }) => p.id === Number(item.productId)
+                (p) => p.id === Number(item.productId)
               );
               if (!product) return null;
               return (
                 <div key={item.productId} className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={product.images[0]?.url ?? '/placeholder.png'}
                     alt={product.name}
-                    className="h-16 w-16 rounded object-cover"
+                    width={64}
+                    height={64}
+                    className="rounded object-cover"
                   />
                   <div className="flex flex-1 flex-col">
                     <span className="font-medium">{product.name}</span>
