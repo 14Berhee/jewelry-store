@@ -17,12 +17,27 @@ interface Product {
   images: ProductImage[];
 }
 
-export default function Header({ products }: { products: Product[] }) {
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  imageUrl: string; // ✅ Changed from 'image: CategoryImage' to 'imageUrl: string'
+  products: Product[];
+}
+
+export default function Header({
+  products,
+  categories,
+}: {
+  products: Product[];
+  categories: Category[];
+}) {
   const [isOpen, setIsOpen] = useState(false); // mobile menu
   const [isCartOpen, setIsCartOpen] = useState(false); // cart panel
 
   const items = useCartStore((state) => state.items);
   const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+  console.log('categories:', categories);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-md">
@@ -38,12 +53,45 @@ export default function Header({ products }: { products: Product[] }) {
           <Link href="/products" className="text-gray-700 hover:text-gray-900">
             Products
           </Link>
-          <Link
-            href="/categories"
-            className="text-gray-700 hover:text-gray-900"
-          >
-            Categories
-          </Link>
+          <div className="relative">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              onBlur={() => setTimeout(() => setIsOpen(false), 150)}
+              className="flex items-center gap-1 hover:text-gray-300 focus:outline-none"
+            >
+              Categories
+              <svg
+                className={`h-4 w-4 transition-transform ${
+                  isOpen ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {isOpen && (
+              <ul className="absolute right-0 z-50 mt-2 w-48 rounded bg-white text-gray-800 shadow-lg">
+                {categories.map((cat) => (
+                  <li key={cat.name}>
+                    <Link
+                      href={`/categories/${cat.slug}`}
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      {cat.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           <button
             onClick={() => setIsCartOpen(true)}

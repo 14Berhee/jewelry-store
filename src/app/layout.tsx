@@ -11,11 +11,20 @@ export default async function RootLayout({
   const products = await prisma.product.findMany({
     include: { images: true, metal: true, category: true },
   });
+  const categories = await prisma.category.findMany({
+    include: {
+      products: {
+        include: {
+          images: true,
+        },
+      },
+    },
+  });
 
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
-        <Header products={products} />
+        <Header categories={categories} products={products} />
         <main className="flex-grow">{children}</main>
         <Footer />
       </body>
