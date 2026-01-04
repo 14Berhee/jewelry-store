@@ -15,7 +15,6 @@ type OrderForm = {
 };
 
 export async function POST(req: Request) {
-  // Explicitly type the JSON body
   const body: { form: OrderForm; items: CartItem[] } = await req.json();
 
   const { form, items } = body;
