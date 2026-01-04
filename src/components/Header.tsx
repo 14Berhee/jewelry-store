@@ -21,12 +21,11 @@ interface Category {
   id: number;
   name: string;
   slug: string;
-  imageUrl: string; // ✅ Changed from 'image: CategoryImage' to 'imageUrl: string'
+  imageUrl: string;
   products: Product[];
 }
 
 export default function Header({
-  products,
   categories,
 }: {
   products: Product[];
@@ -35,8 +34,11 @@ export default function Header({
   const [isOpen, setIsOpen] = useState(false); // mobile menu
   const [isCartOpen, setIsCartOpen] = useState(false); // cart panel
 
-  const items = useCartStore((state) => state.items);
-  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
+  const items = useCartStore((state) => state.cartItemsLocal);
+  const totalQty = items.reduce(
+    (sum: number, i: { quantity: number }) => sum + i.quantity,
+    0
+  );
   console.log('categories:', categories);
 
   return (
@@ -158,11 +160,7 @@ export default function Header({
           </div>
         </nav>
       )}
-      <CartPanel
-        products={products ?? []}
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-      />
+      <CartPanel isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
 
       {isCartOpen && (
         <div

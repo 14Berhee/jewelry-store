@@ -2,7 +2,7 @@ import Hero from '../components/Hero';
 import Bar from '../components/Bar';
 import HeadCategory from '../components/HeadCategory';
 import { prisma } from '@/lib/prisma';
-import ProductGrid from '../components/product/ProductGrid';
+import ProductGrid from '../components/productCards/ProductGrid';
 
 export default async function HomePage() {
   const categories = await prisma.category.findMany({

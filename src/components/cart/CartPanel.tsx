@@ -2,33 +2,24 @@
 
 import Image from 'next/image';
 import { useCartStore } from '@/src/store/useCartStore';
+import { useRouter } from 'next/navigation';
 
-interface ProductImage {
-  url: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  images: ProductImage[];
-}
-
-interface CartPanelProps {
-  products: Product[];
+export function CartPanel({
+  isOpen,
+  onClose,
+}: {
   isOpen: boolean;
   onClose: () => void;
-}
-
-export function CartPanel({ products, isOpen, onClose }: CartPanelProps) {
-  const items = useCartStore((s) => s.items);
+}) {
+  const items = useCartStore((s) => s.cartItemsLocal);
   const removeFromCart = useCartStore((s) => s.removeFromCart);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const router = useRouter();
 
-  const totalPrice = items.reduce((sum, item) => {
-    const product = products.find((p) => p.id === Number(item.productId));
-    return product ? sum + product.price * item.quantity : sum;
-  }, 0);
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('mn-MN').format(price) + '₮';
@@ -55,54 +46,53 @@ export function CartPanel({ products, isOpen, onClose }: CartPanelProps) {
           {items.length === 0 ? (
             <p>Сагс хоосон</p>
           ) : (
-            items.map((item) => {
-              const product = products.find(
-                (p) => p.id === Number(item.productId)
-              );
-              if (!product) return null;
-              return (
-                <div key={item.productId} className="flex items-center gap-3">
+            items.map((item, index) => (
+              <div
+                key={`${item.productId}-${index}`}
+                className="flex items-center gap-3"
+              >
+                {item.image && (
                   <Image
-                    src={product.images[0]?.url ?? '/placeholder.png'}
-                    alt={product.name}
+                    src={item.image ?? '/placeholder.png'}
+                    alt={item.name}
                     width={64}
                     height={64}
                     className="rounded object-cover"
                   />
-                  <div className="flex flex-1 flex-col">
-                    <span className="font-medium">{product.name}</span>
-                    <span className="text-sm text-gray-500">
-                      {formatPrice(product.price)}
-                    </span>
-                    <div className="mt-1 flex items-center gap-2">
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.productId, item.quantity - 1)
-                        }
-                        className="rounded bg-gray-200 px-2"
-                      >
-                        –
-                      </button>
-                      <span>{item.quantity}</span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.productId, item.quantity + 1)
-                        }
-                        className="rounded bg-gray-200 px-2"
-                      >
-                        +
-                      </button>
-                    </div>
+                )}
+                <div className="flex flex-1 flex-col">
+                  <span className="font-medium">{item.name}</span>
+                  <span className="text-sm text-gray-500">
+                    {formatPrice(item.price)}
+                  </span>
+                  <div className="mt-1 flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.productId, item.quantity - 1)
+                      }
+                      className="rounded bg-gray-200 px-2"
+                    >
+                      –
+                    </button>
+                    <span>{item.quantity}</span>
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.productId, item.quantity + 1)
+                      }
+                      className="rounded bg-gray-200 px-2"
+                    >
+                      +
+                    </button>
                   </div>
-                  <button
-                    onClick={() => removeFromCart(item.productId)}
-                    className="font-bold text-red-500"
-                  >
-                    ✕
-                  </button>
                 </div>
-              );
-            })
+                <button
+                  onClick={() => removeFromCart(item.productId)}
+                  className="font-bold text-red-500"
+                >
+                  ✕
+                </button>
+              </div>
+            ))
           )}
         </div>
 
@@ -112,7 +102,10 @@ export function CartPanel({ products, isOpen, onClose }: CartPanelProps) {
               <span>Нийт:</span>
               <span>{formatPrice(totalPrice)}</span>
             </div>
-            <button className="mt-4 w-full rounded bg-amber-700 py-2 text-white hover:bg-amber-800">
+            <button
+              className="mt-4 w-full rounded bg-amber-700 py-2 text-white hover:bg-amber-800"
+              onClick={() => router.push('/checkout')}
+            >
               Худалдаж авах
             </button>
           </div>

@@ -10,6 +10,17 @@ export async function getAllProducts() {
   });
 }
 
+export async function getSingleProduct(id: string) {
+  return prisma.product.findFirst({
+    where: { id: Number(id) },
+    include: {
+      images: true,
+      category: true,
+      metal: true,
+    },
+  });
+}
+
 export async function getProductsByCategory(slug: string) {
   if (process.env.VERCEL_ENV === 'production' && !process.env.DATABASE_URL) {
     return [];

@@ -1,3 +1,7 @@
+'use client';
+
+import Image from 'next/image';
+
 type ProductCategory = {
   id: number;
   name: string;
@@ -20,11 +24,14 @@ export default function HeadCategory({
             key={category.id}
             className="group cursor-pointer rounded-2xl border border-neutral-200 p-6 transition hover:shadow-md"
           >
-            <img
+            <Image
               src={category.imageUrl}
               alt={category.name}
+              width={400} // number, required
+              height={400} // number, required
               className="mb-4 aspect-square rounded-xl bg-neutral-100"
             />
+
             <h3 className="text-center font-medium group-hover:underline">
               {category.name}
             </h3>
