@@ -4,12 +4,14 @@ type CartItem = {
   id: number;
   price: number;
   quantity: number;
+  productId: number;
 };
 
 type OrderForm = {
   customerName: string;
   phone: string;
   address: string;
+  products: string;
 };
 
 export async function POST(req: Request) {
@@ -29,14 +31,18 @@ export async function POST(req: Request) {
       total,
       items: {
         create: items.map((i) => ({
-          productId: i.id,
+          productId: i.productId,
           quantity: i.quantity,
           price: i.price,
         })),
       },
     },
     include: {
-      items: true,
+      items: {
+        include: {
+          product: true,
+        },
+      },
     },
   });
 
