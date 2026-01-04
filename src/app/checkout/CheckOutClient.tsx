@@ -2,6 +2,7 @@
 
 import { useCartStore } from '@/src/store/useCartStore';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function CheckoutClient() {
   const cartItems = useCartStore((s) => s.cartItemsLocal);
@@ -59,9 +60,9 @@ export default function CheckoutClient() {
 
       // Optional: clear cart AFTER payment display
       clearCart();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message);
+      alert(err instanceof Error ? err.message : 'An error occurred');
     }
   };
 
@@ -119,7 +120,7 @@ export default function CheckoutClient() {
       {qr && (
         <div className="mt-6">
           <h2 className="mb-2 text-xl font-semibold">QR кодыг сканнердах:</h2>
-          <img
+          <Image
             src={`https://api.qrserver.com/v1/create-qr-code/?data=${qr}`}
             alt="QPay QR"
             className="mx-auto"
