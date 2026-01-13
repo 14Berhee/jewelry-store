@@ -2,69 +2,79 @@
 
 import { useCartStore } from '@/src/store/useCartStore';
 import { useState } from 'react';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+interface CartItem {
+  productId: number;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+interface FormData {
+  customerName: string;
+  phone: string;
+  address: string;
+  email: string;
+}
+
+interface OrderResponse {
+  orderId?: number;
+  message?: string;
+}
 
 export default function CheckoutClient() {
   const cartItems = useCartStore((s) => s.cartItemsLocal);
   const clearCart = useCartStore((s) => s.clearCart);
+  const router = useRouter();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormData>({
     customerName: '',
     phone: '',
     address: '',
+    email: '',
   });
 
-  const [qr, setQr] = useState<string | null>(null);
-  const [links, setLinks] = useState<{ name: string; link: string }[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  const handleCheckout = async () => {
-    if (!form.customerName || !form.phone || !form.address) {
-      alert('Бүх талбарыг бөглөнө үү');
+  async function submitOrder() {
+    if (!cartItems.length) {
+      alert('Сагс хоосон байна!');
       return;
     }
 
-    if (cartItems.length === 0) {
-      alert('Сагс хоосон байна');
-      return;
-    }
+    setLoading(true);
 
     try {
-      // 1️⃣ create order
-      const orderRes = await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ form, items: cartItems }),
-        headers: { 'Content-Type': 'application/json' },
       });
 
-      if (!orderRes.ok) throw new Error('Order creation failed');
-      const order = await orderRes.json();
+      const data = (await res.json()) as OrderResponse;
 
-      // 2️⃣ fetch QPay invoice
-      const payRes = await fetch('/api/qpay/invoice', {
-        method: 'POST',
-        body: JSON.stringify({ orderId: order.id }),
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!payRes.ok) throw new Error('QPay invoice failed');
-      const data = await payRes.json();
-
-      // 3️⃣ save QR and bank links to state
-      setLinks(data.urls || []);
-      setQr(data.qr_text || null);
-
-      // Optional: clear cart AFTER payment display
-      clearCart();
-    } catch (err: unknown) {
-      console.error(err);
-      alert(err instanceof Error ? err.message : 'An error occurred');
+      if (res.ok && data.orderId) {
+        clearCart();
+        router.push('/order-invoice/' + data.orderId);
+      } else {
+        console.error('Order creation failed', data);
+        alert(data.message || 'Захиалга үүсгэхэд алдаа гарлаа');
+      }
+    } catch (err) {
+      console.error('Network error:', err);
+      alert('Сүлжээний алдаа гарлаа. Дахин оролдоно уу.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   return (
     <section className="mx-auto max-w-3xl py-12">
@@ -89,63 +99,44 @@ export default function CheckoutClient() {
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
         />
+        <input
+          placeholder="Имэйл"
+          className="w-full rounded border p-3"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+        />
       </div>
 
       <div className="mt-8 space-y-2">
-        {cartItems.map((item, index) => (
-          <div
-            key={`${item.productId}-${index}`}
-            className="flex justify-between"
-          >
+        {cartItems.map((item) => (
+          <div key={item.productId} className="flex justify-between">
             <span>
               {item.name} × {item.quantity}
             </span>
-            <span>{item.price * item.quantity}₮</span>
+            <span>
+              {new Intl.NumberFormat('mn-MN').format(
+                item.price * item.quantity
+              )}
+              ₮
+            </span>
           </div>
         ))}
         <hr />
         <div className="flex justify-between font-bold">
           <span>Нийт</span>
-          <span>{total}₮</span>
+          <span>{new Intl.NumberFormat('mn-MN').format(total)}₮</span>
         </div>
       </div>
 
       <button
-        onClick={handleCheckout}
-        className="mt-6 w-full rounded-full bg-neutral-900 py-4 text-white"
+        onClick={submitOrder}
+        disabled={loading}
+        className={`mt-6 w-full rounded-full py-4 text-white ${
+          loading ? 'cursor-not-allowed bg-gray-500' : 'bg-neutral-900'
+        }`}
       >
-        Захиалах & Төлөх
+        {loading ? 'Түр хүлээнэ үү...' : 'Захиалах'}
       </button>
-
-      {qr && (
-        <div className="mt-6">
-          <h2 className="mb-2 text-xl font-semibold">QR кодыг сканнердах:</h2>
-          <Image
-            src={`https://api.qrserver.com/v1/create-qr-code/?data=${qr}`}
-            alt="QPay QR"
-            className="mx-auto"
-          />
-        </div>
-      )}
-
-      {links.length > 0 && (
-        <div className="mt-4">
-          <h2 className="mb-2 text-xl font-semibold">Банк аппуудаар төлөх:</h2>
-          <ul className="space-y-1">
-            {links.map((l) => (
-              <li key={l.name}>
-                <a
-                  href={l.link}
-                  target="_blank"
-                  className="text-blue-700 underline"
-                >
-                  {l.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </section>
   );
 }

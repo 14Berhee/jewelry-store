@@ -31,8 +31,8 @@ export function ProductCard({ product }: { product: Product }) {
               src={product.images[0].url}
               alt={product.name}
               className="h-full w-full object-cover transition group-hover:scale-105"
-              width={500} // required
-              height={500} // required
+              width={500}
+              height={500}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gray-200">

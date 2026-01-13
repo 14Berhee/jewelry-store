@@ -11,8 +11,10 @@ export async function getAllProducts() {
 }
 
 export async function getSingleProduct(id: string) {
-  return prisma.product.findFirst({
-    where: { id: Number(id) },
+  return prisma.product.findUnique({
+    where: {
+      id: Number(id),
+    },
     include: {
       images: true,
       category: true,

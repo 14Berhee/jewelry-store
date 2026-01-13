@@ -86,6 +86,7 @@ async function main() {
       data: {
         name: p.name,
         price: p.price,
+        title: p.name,
         categoryId: p.categoryId,
         metalId: getMetalId(p.metal),
         images: {
