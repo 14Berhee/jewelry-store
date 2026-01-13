@@ -4,9 +4,11 @@ import { Package, Shield, Truck } from 'lucide-react';
 import { useCartStore } from '@/src/store/useCartStore';
 import Image from 'next/image';
 import { Product } from '@/src/types/product';
+import { useRouter } from 'next/navigation';
 
 export default function ProductClient({ product }: { product: Product }) {
   const addToCart = useCartStore((s) => s.addToCart);
+  const router = useRouter();
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -24,12 +26,15 @@ export default function ProductClient({ product }: { product: Product }) {
         </div>
 
         <div className="flex flex-col justify-start space-y-6">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight text-neutral-900">
+          <div className="space-y-2">
+            <h3 className="font-serif text-xl font-medium tracking-wide text-gray-900 md:text-2xl">
               {product?.name}
-            </h1>
-            <p className="mt-4 text-3xl font-semibold text-neutral-900">
+            </h3>
+            <p className="text-lg font-light tracking-wide text-gray-700 md:text-xl">
               {new Intl.NumberFormat('mn-MN').format(product?.price || 0)}₮
+            </p>
+            <p className="py-6 text-base leading-loose text-gray-700">
+              {product?.title}
             </p>
           </div>
 
@@ -50,7 +55,10 @@ export default function ProductClient({ product }: { product: Product }) {
               </button>
             </div>
             <div>
-              <button className="w-full rounded-full border-2 border-neutral-900 px-8 py-4 text-base font-medium text-neutral-900 transition hover:bg-neutral-900 hover:text-white active:scale-95">
+              <button
+                className="w-full rounded-full border-2 border-neutral-900 px-8 py-4 text-base font-medium text-neutral-900 transition hover:bg-neutral-900 hover:text-white active:scale-95"
+                onClick={() => router.push('/checkout')}
+              >
                 Шууд худалдан авах
               </button>
             </div>
