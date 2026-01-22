@@ -27,8 +27,8 @@ export default function HeadCategory({
             <Image
               src={category.imageUrl}
               alt={category.name}
-              width={400} // number, required
-              height={400} // number, required
+              width={400}
+              height={400}
               className="mb-4 aspect-square rounded-xl bg-neutral-100"
             />
 

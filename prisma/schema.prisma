@@ -6,13 +6,20 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id        Int        @id @default(autoincrement())
   name      String
   email     String     @unique
   password  String
-  role      String     @default("customer")
+  role      Role       @default(USER)
   createdAt DateTime   @default(now())
+   resetToken       String?  
+  resetTokenExpiry DateTime?
    cartItems CartItem[]
   orders    Order[]
  reviews   Review[]
@@ -24,6 +31,7 @@ model Product {
   price      Float
   title String
   categoryId Int?
+  stock      Int            @default(0)  
   metalId    Int?
   cartItems  CartItem[]
   orderItems OrderItem[]
@@ -31,6 +39,9 @@ model Product {
   metal      Metal?         @relation(fields: [metalId], references: [id])
   images     ProductImage[]
   reviews    Review[]
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
 }
 
 model Metal {

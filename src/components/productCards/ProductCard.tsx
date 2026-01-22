@@ -17,7 +17,11 @@ export function ProductCard({ product }: { product: Product }) {
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => {
       const newFav = new Set(prev);
-      newFav.has(id) ? newFav.delete(id) : newFav.add(id);
+      if (newFav.has(id)) {
+        newFav.delete(id);
+      } else {
+        newFav.add(id);
+      }
       return newFav;
     });
   };

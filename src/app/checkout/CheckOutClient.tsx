@@ -1,46 +1,41 @@
+// CheckoutClient.tsx
 'use client';
 
 import { useCartStore } from '@/src/store/useCartStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface CartItem {
-  productId: number;
-  name: string;
-  price: number;
-  quantity: number;
-}
-
-interface FormData {
-  customerName: string;
-  phone: string;
-  address: string;
-  email: string;
-}
-
-interface OrderResponse {
-  orderId?: number;
-  message?: string;
-}
 
 export default function CheckoutClient() {
   const cartItems = useCartStore((s) => s.cartItemsLocal);
   const clearCart = useCartStore((s) => s.clearCart);
   const router = useRouter();
 
-  const [form, setForm] = useState<FormData>({
+  const [form, setForm] = useState({
     customerName: '',
     phone: '',
     address: '',
     email: '',
   });
-
   const [loading, setLoading] = useState(false);
 
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  // Load saved form data when component mounts
+  useEffect(() => {
+    const savedForm = localStorage.getItem('checkout_form_data');
+    if (savedForm) {
+      try {
+        setForm(JSON.parse(savedForm));
+      } catch (err) {
+        console.error('Failed to load saved form data:', err);
+      }
+    }
+  }, []);
+
+  // Save form data whenever it changes
+  useEffect(() => {
+    if (form.customerName || form.phone || form.address || form.email) {
+      localStorage.setItem('checkout_form_data', JSON.stringify(form));
+    }
+  }, [form]);
 
   async function submitOrder() {
     if (!cartItems.length) {
@@ -48,36 +43,56 @@ export default function CheckoutClient() {
       return;
     }
 
-    setLoading(true);
+    if (
+      !form.customerName.trim() ||
+      !form.phone.trim() ||
+      !form.address.trim() ||
+      !form.email.trim()
+    ) {
+      alert('Бүх талбарыг бөглөнө үү!');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      alert('Имэйл хаяг буруу байна!');
+      return;
+    }
 
+    setLoading(true);
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ form, items: cartItems }),
       });
 
-      const data = (await res.json()) as OrderResponse;
+      const data = await res.json();
 
       if (res.ok && data.orderId) {
+        localStorage.removeItem('checkout_form_data');
         clearCart();
         router.push('/order-invoice/' + data.orderId);
+      } else if (res.status === 401) {
+        alert('Захиалга хийхийн тулд нэвтэрнэ үү');
+        router.push('/signin?redirect=/checkout');
       } else {
-        console.error('Order creation failed', data);
         alert(data.message || 'Захиалга үүсгэхэд алдаа гарлаа');
       }
     } catch (err) {
-      console.error('Network error:', err);
+      console.error(err);
       alert('Сүлжээний алдаа гарлаа. Дахин оролдоно уу.');
     } finally {
       setLoading(false);
     }
   }
 
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   return (
-    <section className="mx-auto max-w-3xl py-12">
+    <section className="mx-auto max-w-3xl px-4 py-12">
       <h1 className="mb-6 text-3xl font-bold">Захиалга хийх</h1>
 
       <div className="space-y-4">
@@ -96,11 +111,13 @@ export default function CheckoutClient() {
         <textarea
           placeholder="Хаяг"
           className="w-full rounded border p-3"
+          rows={3}
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
         />
         <input
           placeholder="Имэйл"
+          type="email"
           className="w-full rounded border p-3"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -122,7 +139,7 @@ export default function CheckoutClient() {
           </div>
         ))}
         <hr />
-        <div className="flex justify-between font-bold">
+        <div className="flex justify-between text-lg font-bold">
           <span>Нийт</span>
           <span>{new Intl.NumberFormat('mn-MN').format(total)}₮</span>
         </div>
@@ -131,8 +148,10 @@ export default function CheckoutClient() {
       <button
         onClick={submitOrder}
         disabled={loading}
-        className={`mt-6 w-full rounded-full py-4 text-white ${
-          loading ? 'cursor-not-allowed bg-gray-500' : 'bg-neutral-900'
+        className={`mt-6 w-full rounded-full py-4 font-semibold text-white ${
+          loading
+            ? 'cursor-not-allowed bg-gray-500'
+            : 'bg-neutral-900 hover:bg-neutral-800'
         }`}
       >
         {loading ? 'Түр хүлээнэ үү...' : 'Захиалах'}

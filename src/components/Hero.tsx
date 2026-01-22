@@ -7,14 +7,6 @@ export default function Hero() {
       <p className="mb-10 text-lg text-neutral-600">
         Crafted to last. Designed to shine.
       </p>
-      <div className="flex justify-center gap-4">
-        <button className="rounded-full bg-neutral-900 px-8 py-3 text-white transition hover:bg-neutral-800">
-          Shop Rings
-        </button>
-        <button className="rounded-full border border-neutral-300 px-8 py-3 transition hover:border-neutral-900">
-          Shop Chains
-        </button>
-      </div>
     </section>
   );
 }
