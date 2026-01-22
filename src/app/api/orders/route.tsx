@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { encodeOrderId } from '@/lib/orderHash';
+import { cookies } from 'next/headers';
+import { verify } from 'jsonwebtoken';
 
 type CartItem = {
   id: number;
@@ -18,6 +20,26 @@ type OrderForm = {
 
 export async function POST(req: Request) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+
+    if (!token) {
+      return new Response(JSON.stringify({ message: 'Та нэвтэрч орно уу!' }), {
+        status: 401,
+      });
+    }
+
+    let userId;
+    try {
+      const decoded = verify(token, process.env.JWT_SECRET!) as {
+        userId: number;
+      };
+      userId = decoded.userId;
+    } catch {
+      return new Response(JSON.stringify({ message: 'Токен хүчингүй байна' }), {
+        status: 401,
+      });
+    }
     const body: { form: OrderForm; items: CartItem[] } = await req.json();
     const { form, items } = body;
 
@@ -25,6 +47,18 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ message: 'Сагс хоосон байна' }), {
         status: 400,
       });
+    }
+
+    if (
+      !form.customerName?.trim() ||
+      !form.phone?.trim() ||
+      !form.address?.trim() ||
+      !form.email?.trim()
+    ) {
+      return new Response(
+        JSON.stringify({ message: 'Бүх талбарыг бөглөнө үү' }),
+        { status: 400 }
+      );
     }
 
     const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
@@ -36,6 +70,7 @@ export async function POST(req: Request) {
         address: form.address,
         email: form.email,
         total,
+        userId,
         items: {
           create: items.map((i) => ({
             productId: i.productId,
@@ -49,7 +84,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // ✅ Return hashed order ID instead of raw number
     const hashedId = encodeOrderId(order.id);
 
     return new Response(JSON.stringify({ orderId: hashedId }), { status: 201 });
