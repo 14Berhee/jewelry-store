@@ -12,7 +12,6 @@ export async function verifyAdminAuth() {
       return { error: 'Unauthorized', status: 401 };
     }
 
-    // Verify token
     let userId: number;
     try {
       const decoded = verify(token, process.env.JWT_SECRET!) as {
@@ -23,7 +22,6 @@ export async function verifyAdminAuth() {
       return { error: 'Invalid token', status: 401 };
     }
 
-    // Check if user is admin
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {

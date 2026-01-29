@@ -5,5 +5,10 @@ export interface Category {
   name: string;
   slug: string;
   products: Product[];
-  imageURL: string;
+  metals: {
+    id: number;
+    name: string;
+    slug: string;
+  }[];
+  imageUrl: string;
 }

@@ -1,8 +1,7 @@
-// app/api/admin/products/[id]/route.ts
 import { prisma } from '@/lib/prisma';
 import { verifyAdminAuth } from '@/lib/adminAuth';
+import { NextRequest, NextResponse } from 'next/server';
 
-// GET - Fetch single product
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -20,8 +19,11 @@ export async function GET(
     const product = await prisma.product.findUnique({
       where: { id: productId },
       include: {
-        images: true,
+        images: {
+          orderBy: { order: 'asc' },
+        },
         category: true,
+        metal: true,
       },
     });
 
@@ -39,7 +41,6 @@ export async function GET(
   }
 }
 
-// PUT - Update product
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -54,9 +55,17 @@ export async function PUT(
   try {
     const productId = parseInt(id);
     const body = await request.json();
-    const { name, title, price, stock, categoryId, images } = body;
+    const {
+      name,
+      title,
+      price,
+      stock,
+      categoryId,
+      images,
+      metalId,
+      availableSizes,
+    } = body;
 
-    // Delete existing images and create new ones
     await prisma.productImage.deleteMany({
       where: { productId },
     });
@@ -67,15 +76,24 @@ export async function PUT(
         name,
         title,
         price,
+        metalId: metalId || null,
         stock,
+        availableSizes,
         categoryId: categoryId || null,
         images: {
-          create: images?.map((url: string) => ({ url })) || [],
+          create:
+            images?.map((url: string, index: number) => ({
+              url,
+              order: index,
+            })) || [],
         },
       },
       include: {
-        images: true,
+        images: {
+          orderBy: { order: 'asc' },
+        },
         category: true,
+        metal: true,
       },
     });
 
@@ -89,14 +107,13 @@ export async function PUT(
   }
 }
 
-// DELETE - Delete product
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await verifyAdminAuth();
   if ('error' in auth) {
-    return Response.json({ message: auth.error }, { status: auth.status });
+    return NextResponse.json({ message: auth.error }, { status: auth.status });
   }
 
   const { id } = await params;
@@ -104,24 +121,33 @@ export async function DELETE(
   try {
     const productId = parseInt(id);
 
-    // Check if product exists
     const product = await prisma.product.findUnique({
       where: { id: productId },
     });
 
     if (!product) {
-      return Response.json({ message: 'Product not found' }, { status: 404 });
+      return NextResponse.json(
+        { message: 'Product not found' },
+        { status: 404 }
+      );
     }
 
-    // Delete product (images will be deleted automatically with cascade)
-    await prisma.product.delete({
+    if (product.deletedAt) {
+      return NextResponse.json(
+        { message: 'Product already deleted' },
+        { status: 400 }
+      );
+    }
+
+    await prisma.product.update({
       where: { id: productId },
+      data: { deletedAt: new Date() },
     });
 
-    return Response.json({ message: 'Product deleted successfully' });
+    return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
-    console.error('Delete product error:', error);
-    return Response.json(
+    console.error('Error deleting product:', error);
+    return NextResponse.json(
       { message: 'Failed to delete product' },
       { status: 500 }
     );

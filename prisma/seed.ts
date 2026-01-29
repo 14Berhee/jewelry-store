@@ -31,13 +31,6 @@ async function main() {
     skipDuplicates: true,
   });
 
-  const metalNames = ['Gold', 'Silver', 'Platinum', 'Rose Gold'];
-
-  await prisma.metal.createMany({
-    data: metalNames.map((m) => ({ name: m })),
-    skipDuplicates: true,
-  });
-
   const categories = await prisma.category.findMany();
   const metals = await prisma.metal.findMany();
 

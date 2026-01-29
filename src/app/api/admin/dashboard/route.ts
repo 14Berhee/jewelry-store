@@ -1,4 +1,3 @@
-// app/api/admin/dashboard/route.ts
 import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';

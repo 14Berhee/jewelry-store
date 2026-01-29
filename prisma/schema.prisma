@@ -31,9 +31,12 @@ model Product {
   price      Float
   title String
   categoryId Int?
+  isNew          Boolean  @default(true)
   stock      Int            @default(0)  
   metalId    Int?
   cartItems  CartItem[]
+  deletedAt      DateTime?     
+   availableSizes String[]
   orderItems OrderItem[]
   category   Category?      @relation("CategoryProducts", fields: [categoryId], references: [id])
   metal      Metal?         @relation(fields: [metalId], references: [id])
@@ -44,10 +47,30 @@ model Product {
 
 }
 
+model Blog {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String   @db.Text
+  content     String   @db.Text
+  coverImage  String
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published])
+  @@index([createdAt])
+  @@map("blogs")
+}
+
+
 model Metal {
   id       Int       @id @default(autoincrement())
   name     String    @unique
   products Product[]
+  slug       String  @unique
+   categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
 }
 
 model CartItem {
@@ -64,9 +87,12 @@ model Order {
   id           Int          @id @default(autoincrement())
   total        Float
   status       OrderStatus  @default(PENDING)
+  lastName       String      
   customerName String       
   phone        String
-  address      String
+  city           String     
+  district       String       
+  address        String 
   email String @default("")
   createdAt    DateTime     @default(now())
   qpayInvoiceId String?     @unique
@@ -101,6 +127,7 @@ model Category {
   imageUrl String
   slug     String    @unique
   products Product[] @relation("CategoryProducts")
+   metals Metal[]
 }
 
 model Review {

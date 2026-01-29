@@ -1,5 +1,5 @@
 import { getSingleProduct } from '@/lib/products';
-import ProductClient from '../../../components/productCards/ProductClient';
+import { ProductClient } from '@/src/components/productCards/ProductClient';
 
 export default async function ProductPage({
   params,
@@ -7,9 +7,16 @@ export default async function ProductPage({
   params: Promise<{ id: string }>;
 }) {
   const product = await getSingleProduct((await params).id);
-
   if (!product) {
     return <div>Product not found</div>;
+  }
+
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h2 className="text-xl font-semibold">Product not found</h2>
+      </div>
+    );
   }
 
   return <ProductClient product={product} />;

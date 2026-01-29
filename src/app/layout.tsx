@@ -1,30 +1,18 @@
 import './globals.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { prisma } from '@/lib/prisma';
+import { getCategoriesWithMetals } from '@/lib/categories';
 
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const products = await prisma.product.findMany({
-    include: { images: true, metal: true, category: true },
-  });
-  const categories = await prisma.category.findMany({
-    include: {
-      products: {
-        include: {
-          images: true,
-        },
-      },
-    },
-  });
-
+  const categories = await getCategoriesWithMetals();
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-gray-50 text-gray-900">
-        <Header categories={categories} products={products} />
+        <Header categories={categories} />
         <main className="flex-grow">{children}</main>
         <Footer />
       </body>
