@@ -1,4 +1,3 @@
-// app/admin/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -131,12 +130,10 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
           <div
@@ -177,9 +174,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Recent Orders & Top Products Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Orders */}
         <div className="rounded-lg bg-white shadow">
           <div className="border-b px-6 py-4">
             <h2 className="text-lg font-semibold text-gray-900">
@@ -229,7 +224,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Top Products */}
         <div className="rounded-lg bg-white shadow">
           <div className="border-b px-6 py-4">
             <h2 className="text-lg font-semibold text-gray-900">

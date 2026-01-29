@@ -6,10 +6,25 @@ import ProductGrid from '../components/productCards/ProductGrid';
 
 export default async function HomePage() {
   const categories = await prisma.category.findMany({
-    include: { products: true },
+    include: {
+      products: {
+        where: {
+          deletedAt: null,
+        },
+      },
+    },
   });
   const products = await prisma.product.findMany({
-    include: { images: true, metal: true, category: true },
+    where: {
+      deletedAt: null,
+    },
+    include: {
+      images: {
+        orderBy: { order: 'asc' },
+      },
+      metal: true,
+      category: true,
+    },
   });
 
   return (

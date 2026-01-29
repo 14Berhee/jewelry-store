@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { encodeOrderId } from '@/lib/orderHash';
+import Image from 'next/image';
 
 async function getOrders(userId: number) {
   return await prisma.order.findMany({
@@ -11,7 +12,13 @@ async function getOrders(userId: number) {
     include: {
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              metal: true,
+              category: true,
+              images: true,
+            },
+          },
         },
       },
     },
@@ -116,7 +123,21 @@ export default async function OrdersPage() {
                 <div className="space-y-3">
                   {order.items.map((item) => (
                     <div key={item.id} className="flex items-center gap-4">
-                      <div className="h-16 w-16 flex-shrink-0 rounded bg-gray-100" />
+                      {item.product.images[0]?.url ? (
+                        <Image
+                          src={
+                            item.product.images[0]?.url || '/placeholder.png'
+                          }
+                          alt={item.product.name}
+                          width={74}
+                          height={74}
+                          className="h-18 w-18 flex-shrink-0 rounded bg-gray-100 object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gray-200">
+                          <span className="text-gray-500">No Image</span>
+                        </div>
+                      )}
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">
                           {item.product.name}
@@ -124,6 +145,12 @@ export default async function OrdersPage() {
                         <p className="text-sm text-gray-500">
                           Тоо ширхэг: {item.quantity} ×{' '}
                           {new Intl.NumberFormat('mn-MN').format(item.price)}₮
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Размер : {item.product.availableSizes}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          Материал : {item.product.metal?.name}
                         </p>
                       </div>
                       <p className="font-medium text-gray-900">

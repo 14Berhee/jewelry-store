@@ -1,9 +1,16 @@
-// CheckoutClient.tsx
 'use client';
 
 import { useCartStore } from '@/src/store/useCartStore';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  ShoppingBag,
+  Truck,
+  User,
+  Mail,
+  Phone,
+  CreditCard,
+} from 'lucide-react';
 
 export default function CheckoutClient() {
   const cartItems = useCartStore((s) => s.cartItemsLocal);
@@ -12,25 +19,26 @@ export default function CheckoutClient() {
 
   const [form, setForm] = useState({
     customerName: '',
+    lastName: '',
     phone: '',
     address: '',
     email: '',
+    district: '',
+    city: '',
   });
   const [loading, setLoading] = useState(false);
 
-  // Load saved form data when component mounts
   useEffect(() => {
     const savedForm = localStorage.getItem('checkout_form_data');
     if (savedForm) {
       try {
         setForm(JSON.parse(savedForm));
       } catch (err) {
-        console.error('Failed to load saved form data:', err);
+        console.error(err);
       }
     }
   }, []);
 
-  // Save form data whenever it changes
   useEffect(() => {
     if (form.customerName || form.phone || form.address || form.email) {
       localStorage.setItem('checkout_form_data', JSON.stringify(form));
@@ -43,15 +51,12 @@ export default function CheckoutClient() {
       return;
     }
 
-    if (
-      !form.customerName.trim() ||
-      !form.phone.trim() ||
-      !form.address.trim() ||
-      !form.email.trim()
-    ) {
+    const isFormValid = Object.values(form).every((val) => val.trim() !== '');
+    if (!isFormValid) {
       alert('Бүх талбарыг бөглөнө үү!');
       return;
     }
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       alert('Имэйл хаяг буруу байна!');
       return;
@@ -78,8 +83,7 @@ export default function CheckoutClient() {
       } else {
         alert(data.message || 'Захиалга үүсгэхэд алдаа гарлаа');
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert('Сүлжээний алдаа гарлаа. Дахин оролдоно уу.');
     } finally {
       setLoading(false);
@@ -92,70 +96,203 @@ export default function CheckoutClient() {
   );
 
   return (
-    <section className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="mb-6 text-3xl font-bold">Захиалга хийх</h1>
-
-      <div className="space-y-4">
-        <input
-          placeholder="Нэр"
-          className="w-full rounded border p-3"
-          value={form.customerName}
-          onChange={(e) => setForm({ ...form, customerName: e.target.value })}
-        />
-        <input
-          placeholder="Утас"
-          className="w-full rounded border p-3"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-        />
-        <textarea
-          placeholder="Хаяг"
-          className="w-full rounded border p-3"
-          rows={3}
-          value={form.address}
-          onChange={(e) => setForm({ ...form, address: e.target.value })}
-        />
-        <input
-          placeholder="Имэйл"
-          type="email"
-          className="w-full rounded border p-3"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-      </div>
-
-      <div className="mt-8 space-y-2">
-        {cartItems.map((item) => (
-          <div key={item.productId} className="flex justify-between">
-            <span>
-              {item.name} × {item.quantity}
-            </span>
-            <span>
-              {new Intl.NumberFormat('mn-MN').format(
-                item.price * item.quantity
-              )}
-              ₮
-            </span>
-          </div>
-        ))}
-        <hr />
-        <div className="flex justify-between text-lg font-bold">
-          <span>Нийт</span>
-          <span>{new Intl.NumberFormat('mn-MN').format(total)}₮</span>
+    <section className="mx-auto max-w-6xl px-4 py-8 md:py-16">
+      <div className="mb-10 flex items-center gap-4 border-b border-gray-100 pb-6">
+        <div className="rounded-full bg-rose-50 p-3 text-rose-600">
+          <ShoppingBag size={28} />
+        </div>
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 md:text-3xl">
+            Худалдан авалт
+          </h1>
+          <p className="text-sm text-gray-500">
+            Захиалга хийх мэдээллээ баталгаажуулна уу.
+          </p>
         </div>
       </div>
 
-      <button
-        onClick={submitOrder}
-        disabled={loading}
-        className={`mt-6 w-full rounded-full py-4 font-semibold text-white ${
-          loading
-            ? 'cursor-not-allowed bg-gray-500'
-            : 'bg-neutral-900 hover:bg-neutral-800'
-        }`}
-      >
-        {loading ? 'Түр хүлээнэ үү...' : 'Захиалах'}
-      </button>
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <div className="mb-8 flex items-center gap-2 text-gray-900">
+            <User size={20} className="text-rose-600" />
+            <h2 className="text-lg font-bold">Хувийн мэдээлэл</h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Овог
+              </label>
+              <input
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm transition-all focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-50 focus:outline-none"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Нэр
+              </label>
+              <input
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm transition-all focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-50 focus:outline-none"
+                value={form.customerName}
+                onChange={(e) =>
+                  setForm({ ...form, customerName: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Утас
+              </label>
+              <div className="relative">
+                <Phone
+                  size={16}
+                  className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 pl-10 text-sm transition-all focus:border-rose-500 focus:bg-white focus:outline-none"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Имэйл
+              </label>
+              <div className="relative">
+                <Mail
+                  size={16}
+                  className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="email"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 pl-10 text-sm transition-all focus:border-rose-500 focus:bg-white focus:outline-none"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 mb-8 flex items-center gap-2 text-gray-900">
+            <Truck size={20} className="text-rose-600" />
+            <h2 className="text-lg font-bold">Хүргэлтийн хаяг</h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Хот / Аймаг
+              </label>
+              <input
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
+                value={form.city}
+                onChange={(e) => setForm({ ...form, city: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Дүүрэг / Сум
+              </label>
+              <input
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
+                value={form.district}
+                onChange={(e) => setForm({ ...form, district: e.target.value })}
+              />
+            </div>
+            <div className="col-span-full space-y-1.5">
+              <label className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+                Дэлгэрэнгүй хаяг
+              </label>
+              <textarea
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
+                rows={3}
+                placeholder="Байр, тоот, орцны код гэх мэт..."
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5">
+          <div className="sticky top-24 rounded-3xl border border-gray-100 bg-gray-50/50 p-6 shadow-sm ring-1 ring-black/5">
+            <h3 className="mb-6 flex items-center gap-2 font-bold text-gray-900">
+              <CreditCard size={18} className="text-rose-600" />
+              Таны захиалга
+            </h3>
+
+            <div className="max-h-[300px] overflow-y-auto pr-2">
+              {cartItems.map((item) => (
+                <div
+                  key={item.productId}
+                  className="mb-4 flex items-center justify-between border-b border-gray-100 pb-4 last:border-0"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-gray-800">
+                      {item.name}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Тоо ширхэг: {item.quantity}
+                    </span>
+                  </div>
+                  <span className="text-sm font-black text-gray-900">
+                    {new Intl.NumberFormat('mn-MN').format(
+                      item.price * item.quantity
+                    )}
+                    ₮
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 space-y-3 rounded-2xl bg-white p-5 shadow-sm">
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>Захиалгын дүн</span>
+                <span>{new Intl.NumberFormat('mn-MN').format(total)}₮</span>
+              </div>
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>Хүргэлт</span>
+                <span className="text-green-600">Үнэгүй</span>
+              </div>
+              <div className="my-2 border-t border-dashed border-gray-200 pt-3">
+                <div className="flex justify-between text-xl font-black text-gray-900">
+                  <span>Нийт дүн</span>
+                  <span className="text-rose-600">
+                    {new Intl.NumberFormat('mn-MN').format(total)}₮
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={submitOrder}
+              disabled={loading}
+              className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4.5 font-black tracking-widest text-white uppercase transition-all active:scale-[0.98] ${
+                loading
+                  ? 'cursor-not-allowed bg-gray-300'
+                  : 'bg-neutral-900 shadow-xl shadow-neutral-200 hover:bg-neutral-800'
+              }`}
+            >
+              {loading ? (
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              ) : (
+                'Захиалга баталгаажуулах'
+              )}
+            </button>
+
+            <p className="mt-4 text-center text-[10px] leading-relaxed text-gray-400">
+              Та &quot;Захиалга баталгаажуулах&quot; товчийг дарснаар манай
+              үйлчилгээний нөхцөлийг зөвшөөрч буйд тооцогдоно.
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

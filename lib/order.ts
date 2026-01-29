@@ -7,7 +7,12 @@ export async function getSingleOrder(id: number) {
     include: {
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              metal: true,
+              category: true,
+            },
+          },
         },
       },
     },

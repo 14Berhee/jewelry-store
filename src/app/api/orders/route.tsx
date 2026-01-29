@@ -16,6 +16,9 @@ type OrderForm = {
   address: string;
   products: string;
   email: string;
+  lastName: string;
+  district: string;
+  city: string;
 };
 
 export async function POST(req: Request) {
@@ -51,9 +54,12 @@ export async function POST(req: Request) {
 
     if (
       !form.customerName?.trim() ||
+      !form.lastName?.trim() ||
       !form.phone?.trim() ||
       !form.address?.trim() ||
-      !form.email?.trim()
+      !form.email?.trim() ||
+      !form.district?.trim() ||
+      !form.city?.trim()
     ) {
       return new Response(
         JSON.stringify({ message: 'Бүх талбарыг бөглөнө үү' }),
@@ -69,6 +75,9 @@ export async function POST(req: Request) {
         phone: form.phone,
         address: form.address,
         email: form.email,
+        lastName: form.lastName,
+        district: form.district,
+        city: form.city,
         total,
         userId,
         items: {

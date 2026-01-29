@@ -11,6 +11,11 @@ interface Category {
   name: string;
 }
 
+interface Metal {
+  id: number;
+  name: string;
+}
+
 interface Product {
   id: number;
   name: string;
@@ -18,11 +23,15 @@ interface Product {
   price: number;
   stock: number;
   categoryId: number | null;
+  metalId: number | null;
+  availableSizes: string[];
   images: Array<{
     id: number;
     url: string;
   }>;
 }
+
+const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -32,7 +41,9 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [metals, setMetals] = useState<Metal[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -40,22 +51,35 @@ export default function EditProductPage() {
     price: '',
     stock: '',
     categoryId: '',
+    metalId: '',
   });
 
-  // Fetch categories
   const fetchCategories = useCallback(async () => {
     try {
       const res = await fetch('/api/categories');
       if (res.ok) {
         const data = await res.json();
-        setCategories(data.categories);
+        setCategories(data.categories || []);
       }
     } catch (error) {
       console.error('Failed to fetch categories:', error);
+      setCategories([]);
     }
   }, []);
 
-  // Fetch product data
+  const fetchMetals = useCallback(async () => {
+    try {
+      const res = await fetch('/api/metals');
+      if (res.ok) {
+        const data = await res.json();
+        setMetals(data.metals || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch metals:', error);
+      setMetals([]);
+    }
+  }, []);
+
   const fetchProduct = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/products/${productId}`, {
@@ -72,6 +96,7 @@ export default function EditProductPage() {
           price: product.price.toString(),
           stock: product.stock.toString(),
           categoryId: product.categoryId?.toString() || '',
+          metalId: product.metalId?.toString() || '',
         });
 
         setImageUrls(
@@ -79,6 +104,8 @@ export default function EditProductPage() {
             ? product.images.map((img) => img.url)
             : ['']
         );
+
+        setSelectedSizes(product.availableSizes || []);
       } else {
         alert('Product not found');
         router.push('/admin/products');
@@ -91,25 +118,23 @@ export default function EditProductPage() {
     }
   }, [productId, router]);
 
-  // Load categories and product on mount
   useEffect(() => {
     fetchCategories();
+    fetchMetals();
     fetchProduct();
-  }, [fetchCategories, fetchProduct]);
+  }, [fetchCategories, fetchMetals, fetchProduct]);
 
-  // Form input change
   function handleChange(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
-  ) {
+  ): void {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   }
 
-  // Image URL handlers
   function handleImageUrlChange(index: number, value: string) {
     const newUrls = [...imageUrls];
     newUrls[index] = value;
@@ -125,7 +150,12 @@ export default function EditProductPage() {
     setImageUrls(newUrls.length === 0 ? [''] : newUrls);
   }
 
-  // Form submit
+  function toggleSize(size: string) {
+    setSelectedSizes((prev) =>
+      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+    );
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -144,6 +174,8 @@ export default function EditProductPage() {
           categoryId: formData.categoryId
             ? parseInt(formData.categoryId)
             : null,
+          metalId: formData.metalId ? parseInt(formData.metalId) : null,
+          availableSizes: selectedSizes,
           images: validImageUrls,
         }),
       });
@@ -172,7 +204,7 @@ export default function EditProductPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6 p-4">
       <div className="flex items-center gap-4">
         <Link
           href="/admin/products"
@@ -188,7 +220,6 @@ export default function EditProductPage() {
 
       <form onSubmit={handleSubmit} className="rounded-lg bg-white p-6 shadow">
         <div className="space-y-6">
-          {/* Name */}
           <div>
             <label
               htmlFor="name"
@@ -207,7 +238,6 @@ export default function EditProductPage() {
             />
           </div>
 
-          {/* Title */}
           <div>
             <label
               htmlFor="title"
@@ -226,7 +256,6 @@ export default function EditProductPage() {
             />
           </div>
 
-          {/* Price & Stock */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label
@@ -267,31 +296,76 @@ export default function EditProductPage() {
             </div>
           </div>
 
-          {/* Category */}
-          <div>
-            <label
-              htmlFor="categoryId"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Category
-            </label>
-            <select
-              id="categoryId"
-              name="categoryId"
-              value={formData.categoryId}
-              onChange={handleChange}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none"
-            >
-              <option value="">No category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label
+                htmlFor="categoryId"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Category
+              </label>
+              <select
+                id="categoryId"
+                name="categoryId"
+                value={formData.categoryId}
+                onChange={handleChange}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none"
+              >
+                <option value="">No category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="metalId"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Metal
+              </label>
+              <select
+                id="metalId"
+                name="metalId"
+                value={formData.metalId}
+                onChange={handleChange}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-gray-900 focus:ring-2 focus:ring-gray-900 focus:outline-none"
+              >
+                <option value="">No metal</option>
+                {metals.map((metal) => (
+                  <option key={metal.id} value={metal.id}>
+                    {metal.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Images */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Available Sizes
+            </label>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SIZE_OPTIONS.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSize(size)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    selectedSizes.includes(size)
+                      ? 'bg-neutral-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Product Images
@@ -353,7 +427,6 @@ export default function EditProductPage() {
             )}
           </div>
 
-          {/* Submit / Cancel */}
           <div className="flex gap-4 pt-4">
             <button
               type="submit"

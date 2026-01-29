@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useActionState, useEffect, Suspense } from 'react';
 import { registerUserAction } from '../../app/data/actions/auth';
+import { Sparkles, CheckCircle2 } from 'lucide-react';
 
 function SignupFormContent() {
   const router = useRouter();
@@ -18,111 +19,99 @@ function SignupFormContent() {
 
   useEffect(() => {
     if (formState?.success && formState.data) {
-      // Get redirect parameter from URL
       const redirect = searchParams.get('redirect');
 
-      console.log('Signup successful, redirect param:', redirect);
-      console.log('User role:', formState.data.role);
+      // Бүртгүүлсний дараа Header болон бусад хэсгийг шинэчлэх
+      router.refresh();
 
       if (formState.data.role === 'admin') {
         router.push('/admin');
       } else if (redirect) {
-        // Redirect to the saved URL
-        console.log('Redirecting to:', redirect);
         router.push(redirect);
       } else {
-        // Fallback to home
-        console.log('No redirect, going to home');
         router.push('/');
       }
     }
   }, [formState, router, searchParams]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-pink-50 via-white to-rose-50 px-4 py-12">
-      <div className="grid w-full max-w-6xl items-center gap-8 lg:grid-cols-2">
-        {/* Left Side - Branding/Image */}
-        <div className="hidden flex-col justify-center space-y-6 px-8 lg:flex">
-          <div>
-            <h1 className="mb-4 text-5xl font-bold text-gray-800">
-              My Jewelry
+    // Elegant Soft Beige Background
+    <div className="flex min-h-screen items-center justify-center bg-[#FDFBF7] px-4 py-12">
+      <div className="grid w-full max-w-6xl items-center gap-12 lg:grid-cols-2">
+        {/* Left Side: Branding */}
+        <div className="hidden flex-col justify-center space-y-8 px-8 lg:flex">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-[#C5A358]">
+              <Sparkles className="h-6 w-6" />
+              <span className="text-sm font-bold tracking-widest uppercase">
+                Тансаг зэрэглэлийн сонголт
+              </span>
+            </div>
+            <h1 className="text-6xl font-black tracking-tighter text-gray-900">
+              LUME
             </h1>
-            <p className="mb-8 text-xl text-gray-600">
-              Fine Gold & Silver Jewelry
-            </p>
-            <p className="leading-relaxed text-gray-500">
-              Join us today and discover our collection of premium jewelry
-              pieces that tell your story.
+            <p className="text-xl text-gray-600/80">
+              Өнөөдөр бидэнтэй нэгдэж, таны гоо үзэсгэлэнг тодорхойлох нандин
+              цуглуулгуудтай танилцаарай.
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 text-xl text-pink-500">
-                ✓
-              </div>
-              <div>
-                <div className="font-semibold text-gray-800">
-                  Certified Materials
+          <div className="space-y-6">
+            {[
+              {
+                title: 'Баталгаат материалууд',
+                desc: '100% сорьцтой алт болон мөнгө',
+              },
+              {
+                title: 'Үнэгүй хүргэлт',
+                desc: 'Улаанбаатар хот болон орон нутагт',
+              },
+              {
+                title: 'Аюулгүй төлбөр тооцоо',
+                desc: 'Таны мэдээлэл хамгаалагдсан',
+              },
+            ].map((item, index) => (
+              <div key={index} className="flex items-start gap-4">
+                <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center text-[#C5A358]">
+                  <CheckCircle2 className="h-5 w-5" />
                 </div>
-                <div className="text-sm text-gray-600">
-                  100% authentic gold and silver
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 text-xl text-pink-500">
-                ✓
-              </div>
-              <div>
-                <div className="font-semibold text-gray-800">Free Shipping</div>
-                <div className="text-sm text-gray-600">
-                  On all orders nationwide
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 text-xl text-pink-500">
-                ✓
-              </div>
-              <div>
-                <div className="font-semibold text-gray-800">
-                  Secure Payments
-                </div>
-                <div className="text-sm text-gray-600">
-                  Your data is always protected
+                <div>
+                  <div className="font-bold text-gray-800">{item.title}</div>
+                  <div className="text-sm text-gray-500">{item.desc}</div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
+        {/* Right Side: Signup Form */}
         <div className="mx-auto w-full max-w-md lg:mx-0">
           <div className="mb-8 text-center lg:hidden">
-            <Link href="/" className="inline-block">
-              <h1 className="mb-2 text-3xl font-bold text-gray-800">
-                My Jewelry
-              </h1>
+            <Link href="/">
+              <h1 className="text-3xl font-black text-gray-900">My Jewelry</h1>
             </Link>
-            <p className="text-gray-600">Create your account to get started</p>
+            <p className="mt-2 text-gray-500">
+              Шинэ бүртгэл үүсгэж, бидэнтэй нэгдээрэй.
+            </p>
           </div>
 
           <form action={formAction}>
-            <div className="space-y-6 rounded-2xl border border-gray-100 bg-white p-8 shadow-2xl lg:p-10">
+            <div className="space-y-6 rounded-[2rem] border border-stone-100 bg-white p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] lg:p-12">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold text-gray-800">Бүртгүүлэх</h2>
-                <p className="text-gray-600">
-                  Бүртгүүлэхийн тулд мэдээллээ оруулна уу
+                <h2 className="text-3xl font-black text-gray-900">
+                  Бүртгүүлэх
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Мэдээллээ оруулж шинэ бүртгэл үүсгэнэ үү.
                 </p>
               </div>
 
-              <div className="space-y-5">
-                <div className="space-y-2">
+              <div className="space-y-4">
+                {/* Username */}
+                <div className="space-y-1.5">
                   <Label
                     htmlFor="username"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-xs font-bold tracking-wider text-gray-600 uppercase"
                   >
                     Хэрэглэгчийн нэр
                   </Label>
@@ -130,31 +119,35 @@ function SignupFormContent() {
                     id="username"
                     name="username"
                     type="text"
-                    placeholder="Хэрэглэгчийн нэр оруулна уу"
-                    className="h-12 border-gray-300 text-base focus:border-pink-500 focus:ring-pink-500"
+                    required
+                    placeholder="Жишээ: Bat123"
+                    className="h-12 border-stone-200 bg-stone-50/30 focus:border-[#C5A358] focus:ring-[#C5A358]"
                   />
                 </div>
 
-                <div className="space-y-2">
+                {/* Email */}
+                <div className="space-y-1.5">
                   <Label
                     htmlFor="email"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-xs font-bold tracking-wider text-gray-600 uppercase"
                   >
-                    И-мэйл
+                    И-мэйл хаяг
                   </Label>
                   <Input
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="И-мэйл хаяг оруулна уу"
-                    className="h-12 border-gray-300 text-base focus:border-pink-500 focus:ring-pink-500"
+                    required
+                    placeholder="example@mail.com"
+                    className="h-12 border-stone-200 bg-stone-50/30 focus:border-[#C5A358] focus:ring-[#C5A358]"
                   />
                 </div>
 
-                <div className="space-y-2">
+                {/* Password */}
+                <div className="space-y-1.5">
                   <Label
                     htmlFor="password"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-xs font-bold tracking-wider text-gray-600 uppercase"
                   >
                     Нууц үг
                   </Label>
@@ -162,80 +155,58 @@ function SignupFormContent() {
                     id="password"
                     name="password"
                     type="password"
-                    placeholder="Нууц үгээ оруулна уу"
-                    className="h-12 border-gray-300 text-base focus:border-pink-500 focus:ring-pink-500"
+                    required
+                    placeholder="••••••••"
+                    className="h-12 border-stone-200 bg-stone-50/30 focus:border-[#C5A358] focus:ring-[#C5A358]"
                   />
                 </div>
 
-                {/* Error Message */}
-                {formState?.message && !formState.success && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-                    <p className="text-center text-sm text-red-600">
-                      {formState.message}
-                    </p>
-                  </div>
-                )}
-
-                {/* Success Message */}
-                {formState?.message && formState.success && (
-                  <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                    <p className="text-center text-sm text-green-600">
-                      {formState.message}
-                    </p>
+                {/* Messages */}
+                {formState?.message && (
+                  <div
+                    className={`animate-in fade-in slide-in-from-top-1 rounded-xl border p-3 text-center text-xs font-medium ${
+                      formState.success
+                        ? 'border-green-100 bg-green-50 text-green-600'
+                        : 'border-red-100 bg-red-50 text-red-600'
+                    }`}
+                  >
+                    {formState.message}
                   </div>
                 )}
               </div>
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 disabled={isPending}
-                className="h-12 w-full rounded-lg bg-gradient-to-r from-pink-500 to-rose-500 text-base font-semibold text-white shadow-md transition-all duration-200 hover:from-pink-600 hover:to-rose-600 hover:shadow-lg"
+                className="h-12 w-full rounded-xl bg-[#1a1a1a] text-sm font-bold text-white transition-all hover:bg-black active:scale-[0.98]"
               >
                 {isPending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                     Бүртгэж байна...
-                  </span>
+                  </div>
                 ) : (
                   'Бүртгүүлэх'
                 )}
               </Button>
 
-              {/* Divider */}
-              <div className="relative">
+              <div className="relative py-2">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
+                  <div className="w-full border-t border-stone-100" />
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="bg-white px-4 text-gray-500">or</span>
+                <div className="relative flex justify-center text-[10px] font-bold tracking-widest text-stone-400 uppercase">
+                  <span className="bg-white px-4">Эсвэл</span>
                 </div>
               </div>
 
-              {/* Sign In Link */}
               <div className="text-center">
-                <p className="text-gray-600">
-                  Already have an account?{' '}
+                <p className="text-sm text-gray-500">
+                  Бүртгэлтэй юу?{' '}
                   <Link
                     href={`/signin${searchParams.get('redirect') ? `?redirect=${searchParams.get('redirect')}` : ''}`}
-                    className="font-semibold text-pink-500 transition-colors hover:text-pink-600"
+                    className="font-bold text-[#C5A358] transition-colors hover:text-[#A68945]"
                   >
-                    Sign In
+                    Нэвтрэх
                   </Link>
                 </p>
               </div>
@@ -251,11 +222,8 @@ export function SignupForm() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-pink-500"></div>
-            <p className="text-gray-600">Loading...</p>
-          </div>
+        <div className="flex min-h-screen items-center justify-center bg-[#FDFBF7]">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-[#C5A358]" />
         </div>
       }
     >

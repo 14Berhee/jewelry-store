@@ -150,7 +150,6 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
         <p className="mt-1 text-gray-600">
@@ -158,9 +157,7 @@ export default function AdminOrdersPage() {
         </p>
       </div>
 
-      {/* Filters */}
       <div className="grid gap-4 md:grid-cols-2">
-        {/* Search */}
         <div className="rounded-lg bg-white p-4 shadow">
           <div className="relative">
             <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
@@ -174,7 +171,6 @@ export default function AdminOrdersPage() {
           </div>
         </div>
 
-        {/* Status Filter */}
         <div className="rounded-lg bg-white p-4 shadow">
           <select
             value={statusFilter}
@@ -190,7 +186,6 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      {/* Orders List */}
       {filteredOrders.length === 0 ? (
         <div className="rounded-lg bg-white p-12 text-center shadow">
           <p className="text-gray-500">
@@ -207,7 +202,6 @@ export default function AdminOrdersPage() {
               className="overflow-hidden rounded-lg bg-white shadow"
             >
               <div className="p-6">
-                {/* Order Header */}
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3">
@@ -247,7 +241,6 @@ export default function AdminOrdersPage() {
                   </div>
                 </div>
 
-                {/* Order Items */}
                 <div className="mt-4 border-t pt-4">
                   <h4 className="mb-2 text-sm font-medium text-gray-700">
                     Order Items:
@@ -269,7 +262,6 @@ export default function AdminOrdersPage() {
                   </div>
                 </div>
 
-                {/* Customer Info */}
                 <div className="mt-4 border-t pt-4">
                   <h4 className="mb-2 text-sm font-medium text-gray-700">
                     Delivery Information:
@@ -278,7 +270,6 @@ export default function AdminOrdersPage() {
                   <p className="text-sm text-gray-600">Phone: {order.phone}</p>
                 </div>
 
-                {/* Actions */}
                 <div className="mt-4 flex flex-wrap gap-2 border-t pt-4">
                   <select
                     value={order.status}

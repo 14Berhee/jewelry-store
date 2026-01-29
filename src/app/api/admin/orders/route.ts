@@ -1,4 +1,3 @@
-// app/api/admin/orders/route.ts
 import { prisma } from '@/lib/prisma';
 import { verifyAdminAuth } from '@/lib/adminAuth';
 

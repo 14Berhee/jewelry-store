@@ -35,6 +35,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     { name: 'Categories', href: '/admin/categories', icon: FolderTree },
     { name: 'Users', href: '/admin/users', icon: Users },
+    { name: 'Blogs', href: '/admin/blogs', icon: FolderTree },
   ];
 
   return (

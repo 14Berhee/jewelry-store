@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
@@ -15,10 +14,7 @@ export async function middleware(req: NextRequest) {
   const dashboardRoutes = ['/dashboard', '/dashboard/:path*'];
   const adminRoutes = ['/admin', '/admin/:path*'];
 
-  // const token = req.cookies.get('token')?.value;
-
   if (!token) {
-    // Checkout
     if (checkoutRoutes.some((r) => path.startsWith(r))) {
       const url = new URL('/signin', req.url);
       url.searchParams.set('redirect', path);
