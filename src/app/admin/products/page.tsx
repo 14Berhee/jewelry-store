@@ -78,20 +78,23 @@ export default function AdminProductsPage() {
   const handleDelete = async (id: number) => {
     if (!confirm('Устгахдаа итгэлтэй байна уу?')) return;
 
+    setProducts(products.filter((p) => p.id !== id));
+
     try {
-      const res = await fetch(`/api/admin/products/${id}`, {
+      const res = await fetch(`/api/admin?id=${id}`, {
         method: 'DELETE',
       });
 
       if (res.ok) {
         alert('Амжилттай устгалаа!');
-        fetchProducts();
       } else {
         alert('Алдаа гарлаа');
+        fetchProducts();
       }
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Алдаа гарлаа');
+      fetchProducts();
     }
   };
 

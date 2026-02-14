@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Package, Shield, Truck } from 'lucide-react';
 import { useCartStore } from '@/src/store/useCartStore';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { Product, Metal } from '@prisma/client';
 
 interface ProductWithRelations extends Product {
