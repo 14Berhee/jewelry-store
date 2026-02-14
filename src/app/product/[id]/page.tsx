@@ -1,8 +1,6 @@
 import { getSingleProduct } from '@/lib/products';
 import { ProductClient } from '@/src/components/productCards/ProductClient';
 
-export const revalidate = 60;
-
 export default async function ProductPage({
   params,
 }: {
