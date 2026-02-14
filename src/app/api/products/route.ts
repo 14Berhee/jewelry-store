@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { revalidatePath } from 'next/dist/server/web/spec-extension/revalidate';
 export async function GET(request: NextRequest) {
+  revalidatePath('/');
+  revalidatePath('/products');
+  revalidatePath('/categories/[slug]', 'page');
   try {
     const searchParams = request.nextUrl.searchParams;
     const isNew = searchParams.get('new') === 'true';
