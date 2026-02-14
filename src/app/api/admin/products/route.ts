@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminAuth } from '@/lib/adminAuth';
+import { revalidatePath } from 'next/cache';
 
 interface ImageInput {
   url: string;
@@ -230,6 +231,11 @@ export async function DELETE(request: NextRequest) {
     if (!id)
       return NextResponse.json({ error: 'ID required' }, { status: 400 });
 
+    const product = await prisma.product.findUnique({
+      where: { id: Number(id) },
+      include: { category: true },
+    });
+
     const images = await prisma.productImage.findMany({
       where: { productId: Number(id) },
     });
@@ -238,6 +244,15 @@ export async function DELETE(request: NextRequest) {
       where: { id: Number(id) },
       data: { deletedAt: new Date() },
     });
+
+    revalidatePath('/');
+    revalidatePath('/products');
+    revalidatePath(`/products/${id}`);
+    revalidatePath('/categories/[slug]', 'page');
+
+    if (product?.category?.slug) {
+      revalidatePath(`/categories/${product.category.slug}`);
+    }
 
     if (images.length > 0) {
       try {

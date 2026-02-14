@@ -4,8 +4,6 @@ import HeadCategory from '../components/HeadCategory';
 import { prisma } from '@/lib/prisma';
 import ProductGrid from '../components/productCards/ProductGrid';
 
-export const revalidate = 60;
-
 export default async function HomePage() {
   const categories = await prisma.category.findMany({
     include: {
