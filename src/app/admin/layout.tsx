@@ -37,7 +37,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
       <aside className="hidden w-64 bg-gray-900 text-white md:block">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center justify-center border-b border-gray-800">

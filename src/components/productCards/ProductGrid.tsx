@@ -1,6 +1,8 @@
 import type { Product } from '@/src/types/product';
 import { ProductCard } from './ProductCard';
 
+export const dynamic = 'force-dynamic';
+
 export default function ProductGrid({ products }: { products: Product[] }) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">

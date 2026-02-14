@@ -1,8 +1,7 @@
 import { getSingleProduct } from '@/lib/products';
 import { ProductClient } from '@/src/components/productCards/ProductClient';
 
-export const revalidate = 60;
-
+export const dynamic = 'force-dynamic';
 export default async function ProductPage({
   params,
 }: {

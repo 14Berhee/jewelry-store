@@ -4,6 +4,8 @@ import HeadCategory from '../components/HeadCategory';
 import { prisma } from '@/lib/prisma';
 import ProductGrid from '../components/productCards/ProductGrid';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const categories = await prisma.category.findMany({
     include: {
