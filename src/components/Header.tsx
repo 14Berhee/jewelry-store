@@ -12,6 +12,7 @@ import {
   LogOut,
   ChevronRight,
   Sparkles,
+  Search,
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useCartStore } from '@/src/store/useCartStore';
@@ -31,7 +32,8 @@ interface Category {
 }
 
 export default function Header({ categories }: { categories: Category[] }) {
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const isCartOpen = useCartStore((s) => s.isCartOpen);
+  const setIsCartOpen = useCartStore((s) => s.setIsCartOpen);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [userName, setUserName] = useState('');
   const [isShopMenuOpen, setIsShopMenuOpen] = useState(false);
@@ -67,19 +69,8 @@ export default function Header({ categories }: { categories: Category[] }) {
     };
 
     checkAuthStatus();
-
-    checkAuthStatus();
     window.addEventListener('focus', checkAuthStatus);
     return () => window.removeEventListener('focus', checkAuthStatus);
-  }, [pathname]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsMobileMenuOpen(false);
-      setIsShopMenuOpen(false);
-    }, 0);
-
-    return () => clearTimeout(timer);
   }, [pathname]);
 
   async function handleLogout() {
@@ -103,7 +94,7 @@ export default function Header({ categories }: { categories: Category[] }) {
           <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="group -ml-2 rounded-lg p-1.5 transition-colors hover:bg-rose-50 md:hidden md:p-2"
+              className="group -ml-2 flex items-center justify-center rounded-lg p-1.5 transition-colors hover:bg-rose-50 md:hidden md:p-2"
             >
               <Menu className="h-5 w-5 text-gray-700 transition-colors group-hover:text-rose-600" />
             </button>
@@ -119,14 +110,14 @@ export default function Header({ categories }: { categories: Category[] }) {
           <nav className="hidden h-full items-center gap-8 md:flex">
             <Link
               href="/"
-              className="group relative py-1 text-sm font-semibold text-gray-600 transition-colors hover:text-rose-600"
+              className="group relative flex items-center py-1 text-sm font-semibold text-gray-600 transition-colors hover:text-rose-600"
             >
               НҮҮР
               <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-rose-600 transition-all duration-300 group-hover:w-full" />
             </Link>
 
             <div
-              className="group h-full"
+              className="group flex h-full items-center"
               onMouseEnter={() => setIsShopMenuOpen(true)}
               onMouseLeave={() => setIsShopMenuOpen(false)}
             >
@@ -156,6 +147,7 @@ export default function Header({ categories }: { categories: Category[] }) {
                       <div key={cat.id} className="group/cat">
                         <Link
                           href={`/categories/${cat.slug}`}
+                          onClick={() => setIsShopMenuOpen(false)}
                           className="mb-4 flex items-center gap-2 text-sm font-bold tracking-widest text-gray-900 uppercase transition-colors group-hover/cat:text-rose-600"
                         >
                           <span className="h-px w-4 bg-rose-600 transition-all group-hover/cat:w-6" />{' '}
@@ -166,6 +158,7 @@ export default function Header({ categories }: { categories: Category[] }) {
                             <li key={metal.id}>
                               <Link
                                 href={`/categories/${cat.slug}?metal=${metal.slug}`}
+                                onClick={() => setIsShopMenuOpen(false)}
                                 className="group/link flex items-center gap-2 text-sm text-gray-600 transition-all hover:translate-x-1 hover:text-rose-600"
                               >
                                 <span className="h-1.5 w-1.5 rounded-full bg-gray-300 transition-all group-hover/link:bg-rose-600" />{' '}
@@ -185,15 +178,20 @@ export default function Header({ categories }: { categories: Category[] }) {
               href="/blog"
               className="group relative flex items-center gap-1.5 py-1 text-sm font-semibold text-gray-600 transition-colors hover:text-rose-600"
             >
-              <span className="relative">
-                БЛОГ
-                <span className="absolute -top-1 -right-3 flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                </span>
-              </span>
+              БЛОГ
               <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-rose-600 transition-all duration-300 group-hover:w-full" />
             </Link>
+
+            {!isLoggedIn && (
+              <Link
+                href="/track-order"
+                className="group relative flex items-center gap-1.5 py-1 text-sm font-bold text-gray-900 transition-colors hover:text-rose-600"
+              >
+                <Package className="h-4 w-4 text-rose-500" />
+                ХЯНАХ
+                <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-rose-600 transition-all duration-300 group-hover:w-full" />
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-1.5 md:gap-4">
@@ -235,7 +233,7 @@ export default function Header({ categories }: { categories: Category[] }) {
               ) : (
                 <Link
                   href="/signin"
-                  className="flex h-11 items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-sm font-bold text-gray-700 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                  className="flex h-11 items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-sm font-bold text-gray-700 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
                 >
                   <User size={16} /> Нэвтрэх
                 </Link>
@@ -275,18 +273,18 @@ export default function Header({ categories }: { categories: Category[] }) {
               </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="rounded-lg p-1.5 hover:bg-white"
+                className="flex items-center justify-center rounded-lg p-1.5 hover:bg-white"
               >
                 <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
-            <div className="h-[calc(100%-120px)] overflow-y-auto px-4 py-4">
+            <div className="h-[calc(100%-180px)] overflow-y-auto px-4 py-4">
               <nav className="space-y-0.5">
                 <Link
                   href="/"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block py-2 text-base font-black text-gray-900 transition-colors hover:text-rose-600"
+                  className="flex items-center py-2 text-base font-black text-gray-900 transition-colors hover:text-rose-600"
                 >
                   НҮҮР
                 </Link>
@@ -296,10 +294,6 @@ export default function Header({ categories }: { categories: Category[] }) {
                   className="flex items-center gap-2 py-2 text-base font-black text-gray-900 transition-colors hover:text-rose-600"
                 >
                   БЛОГ
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                  </span>
                 </Link>
 
                 <div className="space-y-2 pt-3">
@@ -363,6 +357,16 @@ export default function Header({ categories }: { categories: Category[] }) {
             </div>
 
             <div className="absolute bottom-0 w-full border-t border-gray-100 bg-gradient-to-br from-gray-50 to-white p-4">
+              {!isLoggedIn && (
+                <Link
+                  href="/track-order"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white py-2.5 text-xs font-bold text-rose-600 shadow-sm active:bg-rose-50"
+                >
+                  <Search size={14} /> Захиалга хянах
+                </Link>
+              )}
+
               {isLoggedIn ? (
                 <div className="space-y-2">
                   <div className="rounded-xl border border-gray-100 bg-white p-3 shadow-sm">
@@ -382,7 +386,7 @@ export default function Header({ categories }: { categories: Category[] }) {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full rounded-xl border border-red-100 bg-red-50/50 py-2.5 text-xs font-bold text-red-600 transition-colors active:bg-red-100"
+                    className="flex w-full items-center justify-center rounded-xl border border-red-100 bg-red-50/50 py-2.5 text-xs font-bold text-red-600 transition-colors active:bg-red-100"
                   >
                     Гарах
                   </button>
@@ -401,7 +405,7 @@ export default function Header({ categories }: { categories: Category[] }) {
         </div>
       )}
 
-      <CartPanel isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartPanel />
     </>
   );
 }

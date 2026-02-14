@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+interface User {
+  id: number;
+  email: string;
+  role: string;
+}
 
 interface Product {
   id: number;
@@ -19,6 +26,32 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const user: User = await res.json();
+        if (user.role === 'ADMIN') {
+          setIsAuthenticated(true);
+          fetchProducts();
+        } else {
+          router.push('/');
+        }
+      } else {
+        router.push('/signin');
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      router.push('/signin');
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -66,6 +99,14 @@ export default function AdminProductsPage() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-lg">Уншиж байна...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-lg">Баталгаажуулж байна...</div>
       </div>
     );
   }

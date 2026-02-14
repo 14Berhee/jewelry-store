@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  Users,
   FolderTree,
   LogOut,
 } from 'lucide-react';
@@ -33,8 +32,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Products', href: '/admin/products', icon: Package },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-    { name: 'Categories', href: '/admin/categories', icon: FolderTree },
-    { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Blogs', href: '/admin/blogs', icon: FolderTree },
   ];
 

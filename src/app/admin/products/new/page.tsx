@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Upload } from 'lucide-react';
-import Image from 'next/image';
+import {
+  CloudinaryUploadWidget,
+  CloudinaryImage,
+} from '../../../../components/Cloudinaryuploadwidget';
 
 const SIZE_OPTIONS = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
@@ -16,8 +18,17 @@ interface Category {
   name: string;
 }
 
+interface FormData {
+  name: string;
+  title: string;
+  price: string;
+  stock: number;
+  categoryId: number;
+  metalId: number;
+}
+
 export default function AdminCreateProduct() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     title: '',
     price: '',
@@ -27,7 +38,7 @@ export default function AdminCreateProduct() {
   });
 
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [imageUrls, setImageUrls] = useState<string[]>(['']);
+  const [images, setImages] = useState<CloudinaryImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [metals, setMetals] = useState<Metal[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -63,21 +74,6 @@ export default function AdminCreateProduct() {
     }
   };
 
-  const handleImageUrlChange = (index: number, value: string) => {
-    const newUrls = [...imageUrls];
-    newUrls[index] = value;
-    setImageUrls(newUrls);
-  };
-
-  const addImageUrlField = () => {
-    setImageUrls([...imageUrls, '']);
-  };
-
-  const removeImageUrlField = (index: number) => {
-    const newUrls = imageUrls.filter((_, i) => i !== index);
-    setImageUrls(newUrls.length === 0 ? [''] : newUrls);
-  };
-
   const toggleSize = (size: string) => {
     setSelectedSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
@@ -86,11 +82,26 @@ export default function AdminCreateProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validation
+    if (!formData.name.trim()) {
+      alert('Бүтээгдэхүүний нэрийг оруулна уу');
+      return;
+    }
+
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      alert('Үнэ оруулна уу');
+      return;
+    }
+
+    if (images.length === 0) {
+      alert('Дор хаяж 1 зураг оруулна уу');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const validImageUrls = imageUrls.filter((url) => url.trim() !== '');
-
       const response = await fetch('/api/admin/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,7 +113,17 @@ export default function AdminCreateProduct() {
           categoryId: formData.categoryId > 0 ? formData.categoryId : null,
           metalId: formData.metalId > 0 ? formData.metalId : null,
           availableSizes: selectedSizes,
-          images: validImageUrls,
+          images: images.map((img, index) => ({
+            url: img.url,
+            publicId: img.publicId,
+            width: img.width,
+            height: img.height,
+            format: img.format,
+            bytes: img.bytes,
+            originalFilename: img.originalFilename,
+            isPrimary: index === 0, // First image is primary
+            displayOrder: index,
+          })),
         }),
       });
 
@@ -123,11 +144,15 @@ export default function AdminCreateProduct() {
 
   return (
     <div className="mx-auto max-w-4xl p-4 sm:p-6">
-      <h1 className="mb-6 text-2xl font-bold sm:text-3xl">
-        Бүтээгдэхүүн нэмэх
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold sm:text-3xl">Бүтээгдэхүүн нэмэх</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Шинэ бүтээгдэхүүн үүсгэх болон зураг оруулах
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic Information */}
         <div className="rounded-lg bg-white p-4 shadow sm:p-6">
           <h2 className="mb-4 text-lg font-semibold sm:text-xl">
             Үндсэн мэдээлэл
@@ -135,7 +160,9 @@ export default function AdminCreateProduct() {
 
           <div className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium">Нэр</label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Нэр <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 required
@@ -143,12 +170,13 @@ export default function AdminCreateProduct() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                placeholder="Бүтээгдэхүүний нэр"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
                 Дэлгэрэнгүй
               </label>
               <textarea
@@ -157,44 +185,51 @@ export default function AdminCreateProduct() {
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
                 }
-                className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                placeholder="Бүтээгдэхүүний тайлбар"
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Үнэ (₮)
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Үнэ (₮) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
+                  required
                   inputMode="numeric"
                   min="0"
-                  placeholder="0"
+                  step="0.01"
                   value={formData.price}
                   onChange={(e) =>
                     setFormData({ ...formData, price: e.target.value })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                  placeholder="0"
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">Нөөц</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Нөөц <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   required
+                  min="0"
                   value={formData.stock}
                   onChange={(e) =>
                     setFormData({ ...formData, stock: Number(e.target.value) })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                  placeholder="0"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-medium">
+                <label className="mb-2 block text-sm font-medium text-gray-700">
                   Ангилал
                 </label>
                 <select
@@ -205,7 +240,7 @@ export default function AdminCreateProduct() {
                       categoryId: Number(e.target.value),
                     })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 >
                   <option value={0}>Сонгох</option>
                   {categories.map((cat) => (
@@ -216,7 +251,9 @@ export default function AdminCreateProduct() {
                 </select>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium">Металл</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Металл
+                </label>
                 <select
                   value={formData.metalId}
                   onChange={(e) =>
@@ -225,7 +262,7 @@ export default function AdminCreateProduct() {
                       metalId: Number(e.target.value),
                     })
                   }
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 >
                   <option value={0}>Сонгох</option>
                   {metals.map((metal) => (
@@ -239,69 +276,21 @@ export default function AdminCreateProduct() {
           </div>
         </div>
 
+        {/* Images Section */}
         <div className="rounded-lg bg-white p-4 shadow sm:p-6">
-          <h2 className="mb-4 text-lg font-semibold sm:text-xl">Зургийн URL</h2>
-
-          <div className="space-y-4">
-            <div className="space-y-3">
-              {imageUrls.map((url, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={(e) =>
-                      handleImageUrlChange(index, e.target.value)
-                    }
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  {imageUrls.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeImageUrlField(index)}
-                      className="rounded-lg border border-red-300 px-3 py-2 text-red-600 hover:bg-red-50"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={addImageUrlField}
-              className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900"
-            >
-              <Upload className="h-4 w-4" />
-              Зураг нэмэх
-            </button>
-
-            {imageUrls.some((url) => url.trim() !== '') && (
-              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {imageUrls
-                  .filter((url) => url.trim() !== '')
-                  .map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square overflow-hidden rounded-lg bg-gray-100"
-                    >
-                      <Image
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        fill
-                        className="object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
+          <h2 className="mb-4 text-lg font-semibold sm:text-xl">
+            Зургууд <span className="text-red-500">*</span>
+          </h2>
+          <CloudinaryUploadWidget
+            onImagesChange={setImages}
+            initialImages={images}
+            maxImages={10}
+            folder="products"
+            useOriginalFilename={false}
+          />
         </div>
 
+        {/* Sizes Section */}
         <div className="rounded-lg bg-white p-4 shadow sm:p-6">
           <h2 className="mb-4 text-lg font-semibold sm:text-xl">Хэмжээ</h2>
           <div className="flex flex-wrap gap-2">
@@ -320,20 +309,27 @@ export default function AdminCreateProduct() {
               </button>
             ))}
           </div>
+          {selectedSizes.length > 0 && (
+            <p className="mt-2 text-xs text-gray-600">
+              Сонгосон: {selectedSizes.join(', ')}
+            </p>
+          )}
         </div>
 
+        {/* Action Buttons */}
         <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 rounded-lg bg-neutral-900 py-3 text-white hover:bg-neutral-800 disabled:opacity-50"
+            className="flex-1 rounded-lg bg-neutral-900 py-3 font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? 'Уншиж байна...' : 'Хадгалах'}
+            {loading ? 'Хадгалж байна...' : 'Хадгалах'}
           </button>
           <button
             type="button"
             onClick={() => window.history.back()}
-            className="rounded-lg border border-gray-300 px-6 py-3 hover:bg-gray-50"
+            disabled={loading}
+            className="rounded-lg border border-gray-300 px-6 py-3 font-medium hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Буцах
           </button>

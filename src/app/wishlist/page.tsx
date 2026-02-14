@@ -1,4 +1,3 @@
-// app/wishlist/page.tsx
 'use client';
 
 import { useWishlistStore } from '@/src/store/useWishListStore';
@@ -11,6 +10,7 @@ interface WishlistProduct {
   id: number;
   name: string;
   price: number;
+  stock?: number;
   images: {
     url: string;
   }[];
@@ -19,17 +19,44 @@ interface WishlistProduct {
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, clearWishlist } = useWishlistStore();
   const addToCart = useCartStore((s) => s.addToCart);
+  const setIsCartOpen = useCartStore((s) => s.setIsCartOpen);
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('mn-MN').format(price) + '₮';
 
-  const handleAddToCart = (product: WishlistProduct) => {
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images[0]?.url,
-    });
+  const handleAddToCart = (e: React.MouseEvent, product: WishlistProduct) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const currentCartItem = useCartStore
+      .getState()
+      .cartItemsLocal.find((i) => i.productId === product.id);
+    const currentCartQuantity = currentCartItem?.quantity || 0;
+    const maxStock = product.stock || 99;
+
+    if (maxStock === 0) {
+      alert('Уучлаарай, энэ бараа дууссан байна.');
+      return;
+    }
+
+    if (currentCartQuantity >= maxStock) {
+      alert(
+        `Уучлаарай нөөцөд зөвхөн ${maxStock} ширхэг байна.  Сагсанд аль хэдийн ${currentCartQuantity} ширхэг байна.`
+      );
+      return;
+    }
+
+    addToCart(
+      {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0]?.url,
+      },
+      1
+    );
+
+    setIsCartOpen(true);
   };
 
   if (wishlist.length === 0) {
@@ -98,7 +125,6 @@ export default function WishlistPage() {
               </div>
             </Link>
 
-            {/* Remove Button */}
             <button
               onClick={() => removeFromWishlist(product.id)}
               className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-white"
@@ -119,7 +145,7 @@ export default function WishlistPage() {
               </p>
 
               <button
-                onClick={() => handleAddToCart(product)}
+                onClick={(e) => handleAddToCart(e, product)}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
               >
                 <ShoppingBag className="h-4 w-4" />

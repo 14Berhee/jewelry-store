@@ -97,7 +97,7 @@ model Order {
   createdAt    DateTime     @default(now())
   qpayInvoiceId String?     @unique
   qpayQr        String?
-
+  guestToken   String?
   userId       Int?
   user         User?        @relation(fields: [userId], references: [id])
   items        OrderItem[]
@@ -142,9 +142,23 @@ model Review {
 }
 
 model ProductImage {
-  id        Int     @id @default(autoincrement())
-  url       String
-  order     Int     @default(0)
-  productId Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id               Int      @id @default(autoincrement())
+  productId        Int
+  url              String   @db.Text
+ publicId   String?
+  width            Int?
+  height           Int?
+  format           String?  @db.VarChar(10)
+  bytes            Int?
+  originalFilename String?
+  isPrimary        Boolean  @default(false)
+  order     Int      @default(0)  
+  createdAt        DateTime @default(now())
+updatedAt  DateTime @default(now()) @updatedAt // Add @default(now())
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@index([productId])
+  @@index([publicId])
+  @@index([productId, order])
 }
+

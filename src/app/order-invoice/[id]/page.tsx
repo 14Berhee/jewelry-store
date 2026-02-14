@@ -2,6 +2,7 @@ import { getSingleOrder } from '@/lib/order';
 import { decodeOrderId } from '@/lib/orderHash';
 import BackButton from '@/src/components/BackButton';
 import BankDetails from '@/src/components/BankDetails';
+import GuestLinkNotice from '@/src/components/GuestLinkNotice';
 import {
   Package,
   Calendar,
@@ -9,14 +10,19 @@ import {
   MapPin,
   Phone,
   CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
 
 export default async function OrderPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ token?: string }>;
 }) {
-  const orderId = decodeOrderId((await params).id);
+  const { id } = await params;
+  const { token } = await searchParams;
+  const orderId = decodeOrderId(id);
 
   if (!orderId) {
     return (
@@ -36,9 +42,25 @@ export default async function OrderPage({
     );
   }
 
+  if (order.guestToken && order.guestToken !== token) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-4 px-4 text-center">
+        <div className="rounded-full bg-amber-50 p-4 text-amber-600">
+          <AlertCircle size={40} />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900">Хандах эрхгүй байна</h2>
+        <p className="max-w-sm text-gray-500">
+          Та энэ захиалгыг харах эрхгүй байна. Хэрэв та зочноор захиалга өгсөн
+          бол имэйлээр ирсэн линкээр орно уу.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 md:py-20">
-      {/* Баяр хүргэх мессеж */}
+      {order.guestToken && <GuestLinkNotice />}
+
       <div className="mb-10 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-green-600">
           <CheckCircle2 size={40} />
@@ -54,10 +76,8 @@ export default async function OrderPage({
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         <div className="space-y-6 lg:col-span-8">
-          {/* БАНКНЫ ДАНСНЫ МЭДЭЭЛЭЛ (Copy section дотор бүх зүйл байгаа) */}
           <BankDetails orderId={order.id.toString()} />
 
-          {/* Барааны мэдээлэл */}
           <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm ring-1 ring-black/5">
             <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
               <div className="flex items-center gap-2 font-bold text-gray-900">
@@ -84,9 +104,6 @@ export default async function OrderPage({
                       {item.product?.availableSizes && (
                         <span>Размер: {item.product.availableSizes}</span>
                       )}
-                      {item.product?.metal?.name && (
-                        <span>Материал: {item.product.metal.name}</span>
-                      )}
                     </div>
                   </div>
                   <div className="mt-2 font-black text-gray-900 sm:mt-0">
@@ -110,7 +127,6 @@ export default async function OrderPage({
           </div>
         </div>
 
-        {/* Баруун тал: Хүргэлтийн мэдээлэл */}
         <div className="space-y-6 lg:col-span-4">
           <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm ring-1 ring-black/5">
             <h3 className="mb-4 flex items-center gap-2 text-sm font-bold tracking-wider text-gray-900 uppercase">
@@ -119,31 +135,23 @@ export default async function OrderPage({
             </h3>
             <div className="space-y-4 text-sm">
               <div className="flex gap-3">
-                <div className="shrink-0 text-gray-400">
-                  <User size={16} />
-                </div>
+                <User size={16} className="shrink-0 text-gray-400" />
                 <p className="font-medium text-gray-700">
                   {order.customerName}
                 </p>
               </div>
               <div className="flex gap-3">
-                <div className="shrink-0 text-gray-400">
-                  <Phone size={16} />
-                </div>
+                <Phone size={16} className="shrink-0 text-gray-400" />
                 <p className="font-medium text-gray-700">{order.phone}</p>
               </div>
               <div className="flex gap-3 border-t border-gray-50 pt-2">
-                <div className="shrink-0 text-gray-400">
-                  <MapPin size={16} />
-                </div>
+                <MapPin size={16} className="shrink-0 text-gray-400" />
                 <p className="leading-relaxed font-medium text-gray-700">
                   {order.address}
                 </p>
               </div>
               <div className="flex gap-3 border-t border-gray-50 pt-2">
-                <div className="shrink-0 text-gray-400">
-                  <Calendar size={16} />
-                </div>
+                <Calendar size={16} className="shrink-0 text-gray-400" />
                 <p className="font-medium text-gray-700">
                   {new Date(order.createdAt).toLocaleDateString('mn-MN')}
                 </p>

@@ -20,21 +20,49 @@ export function ProductClient({ product }: { product: ProductWithRelations }) {
   const [quantity, setQuantity] = useState(1);
 
   const addToCart = useCartStore((s) => s.addToCart);
-  const router = useRouter();
+  const setIsCartOpen = useCartStore((s) => s.setIsCartOpen);
 
   const sortedImages = [...(product.images || [])].sort(
     (a, b) => (a.order || 0) - (b.order || 0)
   );
 
   const handleAddToCart = () => {
-    addToCart({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: sortedImages[0]?.url,
-      size: selectedSize,
-      stock: quantity,
-    });
+    const currentCartItem = useCartStore
+      .getState()
+      .cartItemsLocal.find((i) => i.productId === product.id);
+    const currentCartQuantity = currentCartItem?.quantity || 0;
+    const maxStock = product.stock || 0;
+
+    if (maxStock === 0) {
+      alert('Уучлаарай, энэ бараа дууссан байна.');
+      return;
+    }
+
+    const availableSpace = maxStock - currentCartQuantity;
+
+    if (quantity > availableSpace) {
+      if (availableSpace === 0) {
+        alert(`Уучлаарай, нөөцөд зөвхөн ${maxStock} ширхэг л байна.`);
+      } else {
+        alert(
+          `Зөвхөн ${availableSpace} ширхэг нэмж болно. Сагсанд ${currentCartQuantity} ширхэг, нөөцөд ${maxStock} ширхэг байна.`
+        );
+      }
+      return;
+    }
+
+    addToCart(
+      {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: sortedImages[0]?.url,
+        size: selectedSize,
+      },
+      quantity
+    );
+
+    setIsCartOpen(true);
   };
 
   return (

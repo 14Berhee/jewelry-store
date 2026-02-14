@@ -76,10 +76,12 @@ export default function CheckoutClient() {
       if (res.ok && data.orderId) {
         localStorage.removeItem('checkout_form_data');
         clearCart();
-        router.push('/order-invoice/' + data.orderId);
-      } else if (res.status === 401) {
-        alert('Захиалга хийхийн тулд нэвтэрнэ үү');
-        router.push('/signin?redirect=/checkout');
+
+        const redirectPath = data.guestToken
+          ? `/order-invoice/${data.orderId}?token=${data.guestToken}`
+          : `/order-invoice/${data.orderId}`;
+
+        router.push(redirectPath);
       } else {
         alert(data.message || 'Захиалга үүсгэхэд алдаа гарлаа');
       }
@@ -106,7 +108,7 @@ export default function CheckoutClient() {
             Худалдан авалт
           </h1>
           <p className="text-sm text-gray-500">
-            Захиалга хийх мэдээллээ баталгаажуулна уу.
+            Мэдээллээ бөглөөд захиалгаа баталгаажуулна уу.
           </p>
         </div>
       </div>
@@ -124,7 +126,7 @@ export default function CheckoutClient() {
                 Овог
               </label>
               <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm transition-all focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-50 focus:outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
                 value={form.lastName}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
               />
@@ -134,7 +136,7 @@ export default function CheckoutClient() {
                 Нэр
               </label>
               <input
-                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm transition-all focus:border-rose-500 focus:bg-white focus:ring-4 focus:ring-rose-50 focus:outline-none"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
                 value={form.customerName}
                 onChange={(e) =>
                   setForm({ ...form, customerName: e.target.value })
@@ -154,7 +156,7 @@ export default function CheckoutClient() {
                   className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400"
                 />
                 <input
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 pl-10 text-sm transition-all focus:border-rose-500 focus:bg-white focus:outline-none"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 pl-10 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 />
@@ -171,7 +173,7 @@ export default function CheckoutClient() {
                 />
                 <input
                   type="email"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 pl-10 text-sm transition-all focus:border-rose-500 focus:bg-white focus:outline-none"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 pl-10 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
@@ -212,7 +214,7 @@ export default function CheckoutClient() {
               <textarea
                 className="w-full rounded-xl border border-gray-200 bg-gray-50/50 p-3.5 text-sm focus:border-rose-500 focus:bg-white focus:outline-none"
                 rows={3}
-                placeholder="Байр, тоот, орцны код гэх мэт..."
+                placeholder="Байр, тоот..."
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
@@ -238,7 +240,7 @@ export default function CheckoutClient() {
                       {item.name}
                     </span>
                     <span className="text-xs text-gray-500">
-                      Тоо ширхэг: {item.quantity}
+                      Тоо: {item.quantity}
                     </span>
                   </div>
                   <span className="text-sm font-black text-gray-900">
@@ -276,7 +278,7 @@ export default function CheckoutClient() {
               className={`mt-6 flex w-full items-center justify-center gap-2 rounded-2xl py-4.5 font-black tracking-widest text-white uppercase transition-all active:scale-[0.98] ${
                 loading
                   ? 'cursor-not-allowed bg-gray-300'
-                  : 'bg-neutral-900 shadow-xl shadow-neutral-200 hover:bg-neutral-800'
+                  : 'bg-neutral-900 hover:bg-neutral-800'
               }`}
             >
               {loading ? (
@@ -285,11 +287,6 @@ export default function CheckoutClient() {
                 'Захиалга баталгаажуулах'
               )}
             </button>
-
-            <p className="mt-4 text-center text-[10px] leading-relaxed text-gray-400">
-              Та &quot;Захиалга баталгаажуулах&quot; товчийг дарснаар манай
-              үйлчилгээний нөхцөлийг зөвшөөрч буйд тооцогдоно.
-            </p>
           </div>
         </div>
       </div>

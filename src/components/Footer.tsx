@@ -86,7 +86,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Customer Service */}
           <div>
             <h3 className="mb-6 text-sm font-semibold tracking-wider text-white uppercase">
               Тусламж

@@ -21,7 +21,6 @@ function SignupFormContent() {
     if (formState?.success && formState.data) {
       const redirect = searchParams.get('redirect');
 
-      // Бүртгүүлсний дараа Header болон бусад хэсгийг шинэчлэх
       router.refresh();
 
       if (formState.data.role === 'admin') {
@@ -35,10 +34,8 @@ function SignupFormContent() {
   }, [formState, router, searchParams]);
 
   return (
-    // Elegant Soft Beige Background
     <div className="flex min-h-screen items-center justify-center bg-[#FDFBF7] px-4 py-12">
       <div className="grid w-full max-w-6xl items-center gap-12 lg:grid-cols-2">
-        {/* Left Side: Branding */}
         <div className="hidden flex-col justify-center space-y-8 px-8 lg:flex">
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-[#C5A358]">
