@@ -24,24 +24,48 @@ export async function PATCH(
       );
     }
 
-    const order = await prisma.order.update({
-      where: { id: orderId },
-      data: { status },
-      include: {
-        items: {
-          include: {
-            product: true,
+    const result = await prisma.$transaction(async (tx) => {
+      const currentOrder = await tx.order.findUnique({
+        where: { id: orderId },
+        include: { items: true },
+      });
+
+      if (!currentOrder) throw new Error('Order not found');
+
+      if (status === 'PAID' && currentOrder.status !== 'PAID') {
+        for (const item of currentOrder.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          });
+        }
+      }
+
+      const updatedOrder = await tx.order.update({
+        where: { id: orderId },
+        data: { status },
+        include: {
+          items: {
+            include: { product: true },
           },
         },
-      },
+      });
+
+      return updatedOrder;
     });
 
-    return Response.json({ order, message: 'Order status updated' });
-  } catch (error) {
+    return Response.json({
+      order: result,
+      message: 'Захиалгын төлөв шинэчлэгдэж, нөөцөөс хасагдлаа',
+    });
+  } catch (error: unknown) {
     console.error('Update order status error:', error);
-    return Response.json(
-      { message: 'Failed to update order status' },
-      { status: 500 }
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to update order status';
+    return Response.json({ message: errorMessage }, { status: 500 });
   }
 }

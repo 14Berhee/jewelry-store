@@ -1,4 +1,3 @@
-// components/admin/DeleteButton.tsx
 'use client';
 
 import { useState } from 'react';

@@ -1,11 +1,9 @@
-// app/api/orders/my-orders/route.ts
 import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Check authentication
     const cookieStore = await cookies();
     const token = cookieStore.get('token')?.value;
 

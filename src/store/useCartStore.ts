@@ -4,7 +4,9 @@ import { CartProductItem } from '@/src/types/cart';
 
 type CartState = {
   cartItemsLocal: CartProductItem[];
-  addToCart: (item: Omit<CartProductItem, 'quantity'>) => void;
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+  addToCart: (item: Omit<CartProductItem, 'quantity'>, qty?: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, qty: number) => void;
   clearCart: () => void;
@@ -14,8 +16,11 @@ export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       cartItemsLocal: [],
+      isCartOpen: false,
 
-      addToCart: (item) => {
+      setIsCartOpen: (open: boolean) => set({ isCartOpen: open }),
+
+      addToCart: (item, qty = 1) => {
         const items = get().cartItemsLocal;
         const existing = items.find((i) => i.productId === item.productId);
 
@@ -23,13 +28,16 @@ export const useCartStore = create<CartState>()(
           set({
             cartItemsLocal: items.map((i) =>
               i.productId === item.productId
-                ? { ...i, quantity: i.quantity + 1 }
+                ? { ...i, quantity: i.quantity + qty }
                 : i
             ),
           });
         } else {
           set({
-            cartItemsLocal: [...items, { ...item, quantity: 1 } as CartProductItem],
+            cartItemsLocal: [
+              ...items,
+              { ...item, quantity: qty } as CartProductItem,
+            ],
           });
         }
       },

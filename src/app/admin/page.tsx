@@ -16,6 +16,8 @@ interface DashboardStats {
   totalUsers: number;
   totalRevenue: number;
   recentOrders: Array<{
+    customerName: string | null;
+    email: string | null;
     id: number;
     total: number;
     status: string;
@@ -193,7 +195,12 @@ export default function AdminDashboard() {
                         Order #{order.id}
                       </p>
                       <p className="mt-1 text-sm text-gray-600">
-                        {order.user.name || order.user.email}
+                        {/* Priority: 1. Guest Name, 2. User Name, 3. Guest Email, 4. User Email */}
+                        {order.customerName ||
+                          order.user?.name ||
+                          order.email ||
+                          order.user?.email ||
+                          'Зочин'}
                       </p>
                       <p className="mt-1 text-xs text-gray-500">
                         {new Date(order.createdAt).toLocaleDateString('mn-MN', {

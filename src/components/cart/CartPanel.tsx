@@ -9,18 +9,16 @@ interface ProductStock {
   [productId: number]: number;
 }
 
-export function CartPanel({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+export function CartPanel() {
   const items = useCartStore((s) => s.cartItemsLocal);
   const removeFromCart = useCartStore((s) => s.removeFromCart);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const isOpen = useCartStore((s) => s.isCartOpen);
+  const setIsCartOpen = useCartStore((s) => s.setIsCartOpen);
   const router = useRouter();
   const [productStocks, setProductStocks] = useState<ProductStock>({});
+
+  const onClose = () => setIsCartOpen(false);
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -142,7 +140,7 @@ export function CartPanel({
                             item.quantity - 1
                           )
                         }
-                        disabled={isOutOfStock}
+                        disabled={isOutOfStock || item.quantity <= 1}
                         className="rounded bg-gray-200 px-2 hover:bg-gray-300 disabled:opacity-50"
                       >
                         –

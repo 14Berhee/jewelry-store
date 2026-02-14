@@ -1,14 +1,18 @@
 import { cookies } from 'next/headers';
 import { verify } from 'jsonwebtoken';
 import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
+    const cookieStore = cookies();
+    const token = (await cookieStore).get('token')?.value;
 
     if (!token) {
-      return Response.json({ message: 'Та нэвтэрч орно уу!' }, { status: 401 });
+      return NextResponse.json(
+        { message: 'Та нэвтэрч орно уу!' },
+        { status: 401 }
+      );
     }
 
     let userId: number;
@@ -18,7 +22,7 @@ export async function GET() {
       };
       userId = decoded.userId;
     } catch {
-      return Response.json(
+      return NextResponse.json(
         { message: 'Токен хүчингүй байна' },
         { status: 401 }
       );
@@ -30,7 +34,7 @@ export async function GET() {
     });
 
     if (!user || user.role !== 'ADMIN') {
-      return Response.json(
+      return NextResponse.json(
         { message: 'Та админ эрхгүй байна' },
         { status: 403 }
       );
@@ -38,11 +42,8 @@ export async function GET() {
 
     const [totalProducts, totalOrders, totalUsers, orders] = await Promise.all([
       prisma.product.count(),
-
       prisma.order.count(),
-
       prisma.user.count(),
-
       prisma.order.findMany({
         where: { status: 'PAID' },
         select: { total: true },
@@ -54,7 +55,13 @@ export async function GET() {
     const recentOrders = await prisma.order.findMany({
       take: 5,
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        total: true,
+        status: true,
+        createdAt: true,
+        customerName: true,
+        email: true,
         user: {
           select: {
             name: true,
@@ -63,7 +70,6 @@ export async function GET() {
         },
       },
     });
-
     const topProducts = await prisma.product.findMany({
       take: 5,
       orderBy: {
@@ -75,15 +81,11 @@ export async function GET() {
         id: true,
         name: true,
         price: true,
-        _count: {
-          select: {
-            orderItems: true,
-          },
-        },
+        _count: { select: { orderItems: true } },
       },
     });
 
-    return Response.json({
+    return NextResponse.json({
       totalProducts,
       totalOrders,
       totalUsers,
@@ -93,6 +95,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Dashboard stats error:', error);
-    return Response.json({ message: 'Алдаа гарлаа' }, { status: 500 });
+    return NextResponse.json({ message: 'Алдаа гарлаа' }, { status: 500 });
   }
 }
