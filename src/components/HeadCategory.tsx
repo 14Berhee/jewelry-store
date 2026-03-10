@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { HeadCategorySkeleton } from './skeletons/HeadCategorySkeleton';
 
 export type ProductCategory = {
   id: number | string;
@@ -17,6 +18,9 @@ interface HeadCategoryProps {
 }
 
 export default function HeadCategory({ categories = [] }: HeadCategoryProps) {
+  if (!categories || categories.length === 0) {
+    return <HeadCategorySkeleton />;
+  }
   if (!categories || categories.length === 0) {
     return (
       <div className="mx-auto max-w-6xl px-6 py-20 text-center">

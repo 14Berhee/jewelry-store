@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Diamond } from 'lucide-react';
+import LumeLogo from './LumeLogo';
 
 type SvgProps = React.SVGProps<SVGSVGElement>;
 
@@ -35,10 +36,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
           <div className="md:col-span-1">
             <div className="mb-4 flex items-center gap-2">
-              <Diamond className="h-6 w-6 text-amber-500" />
-              <h2 className="font-serif text-xl font-bold tracking-widest text-white uppercase">
-                LUME
-              </h2>
+              <LumeLogo className="h-7 w-auto transition-colors md:h-9" />
             </div>
             <p className="text-sm leading-relaxed text-gray-400">
               Хамгийн нандин зүйлс үргэлж нүдэнд үл үзэгдэх жижиг хэсэгтээ

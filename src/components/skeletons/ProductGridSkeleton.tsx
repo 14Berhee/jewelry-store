@@ -1,12 +1,13 @@
-// components/skeletons/CategoryGridSkeleton.tsx
-import { CategoryCardSkeleton } from './CategoryHeaderSkeleton';
+import { ProductCardSkeleton } from './ProductCardSkeleton';
 
-export function ProductGridSkeleton() {
+export default function ProductGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <CategoryCardSkeleton key={i} />
-      ))}
-    </div>
+    <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {[...Array(8)].map((_, i) => (
+          <ProductCardSkeleton key={i} />
+        ))}
+      </div>
+    </section>
   );
 }

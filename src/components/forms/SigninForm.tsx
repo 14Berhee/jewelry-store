@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useActionState, useEffect, Suspense } from 'react';
 import { loginUserAction } from '../../app/data/actions/auth';
-import { Sparkles, CheckCircle2 } from 'lucide-react';
+import { Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import LumeLogo from '../LumeLogo';
 
 function SigninFormContent() {
   const router = useRouter();
@@ -20,10 +21,7 @@ function SigninFormContent() {
   useEffect(() => {
     if (formState?.success && formState.data) {
       const redirect = searchParams.get('redirect');
-
-      // Системийг бүхэлд нь шинэчлэх (Header-д хэрэглэгчийн нэр харагдахад тусална)
       router.refresh();
-
       if (formState.data.role === 'admin') {
         router.push('/admin');
       } else if (redirect) {
@@ -35,30 +33,33 @@ function SigninFormContent() {
   }, [formState, router, searchParams]);
 
   return (
-    // Elegant Soft Beige Background
-    <div className="flex min-h-screen items-center justify-center bg-[#FDFBF7] px-4 py-12">
-      <div className="grid w-full max-w-6xl items-center gap-12 lg:grid-cols-2">
-        {/* Left Side: Branding */}
-        <div className="hidden flex-col justify-center space-y-8 px-8 lg:flex">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-[#C5A358]">
-              <Sparkles className="h-6 w-6" />
-              <span className="text-sm font-bold tracking-widest uppercase">
-                Дээд зэрэглэлийн үнэт эдлэл
+    <div className="flex min-h-screen items-center justify-center bg-[#F9F7F2] px-4 py-12 selection:bg-[#C5A358]/20">
+      <div className="grid w-full max-w-6xl items-center gap-16 lg:grid-cols-2">
+        <div className="animate-in fade-in slide-in-from-left-8 hidden flex-col justify-center space-y-12 px-8 duration-1000 ease-out lg:flex">
+          <div className="space-y-6">
+            <div className="animate-in fade-in zoom-in-95 fill-mode-both flex items-center gap-3 delay-300 duration-700">
+              <div className="h-[1px] w-12 bg-[#C5A358]" />
+              <span className="text-[10px] font-bold tracking-[0.3em] text-[#C5A358] uppercase">
+                Est. 2025
               </span>
             </div>
-            <h1 className="text-6xl font-black tracking-tighter text-gray-900">
-              LUME
-            </h1>
-            <p className="text-xl text-gray-600/80">
-              Чанар болон үнэ цэнийн хослол. Таны түүхийг өгүүлэх нандин хэлхээ.
+
+            <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both delay-150 duration-1000">
+              <div className="w-56 scale-110 lg:w-72">
+                <LumeLogo />
+              </div>
+            </div>
+
+            <p className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both max-w-md text-lg leading-relaxed font-light text-stone-600 delay-300 duration-1000">
+              Чанар болон үнэ цэнийн төгс зохицол. Таны дотоод гоо үзэсгэлэнг
+              гэрэлтүүлэх нандин урлал.
             </p>
           </div>
 
-          <div className="space-y-6">
+          <div className="animate-in fade-in slide-in-from-bottom-4 fill-mode-both grid gap-8 delay-500 duration-1000">
             {[
               {
-                title: 'Баталгаат материалууд',
+                title: 'Баталгаат материал',
                 desc: '100% сорьцтой алт болон мөнгө',
               },
               {
@@ -70,68 +71,72 @@ function SigninFormContent() {
                 desc: 'Таны мэдээлэл хамгаалагдсан',
               },
             ].map((item, index) => (
-              <div key={index} className="flex items-start gap-4">
-                <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center text-[#C5A358]">
-                  <CheckCircle2 className="h-5 w-5" />
+              <div key={index} className="group flex items-start gap-5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white transition-all duration-500 group-hover:border-[#C5A358] group-hover:bg-[#C5A358]/5">
+                  <CheckCircle2 className="h-4 w-4 text-[#C5A358]" />
                 </div>
                 <div>
-                  <div className="font-bold text-gray-800">{item.title}</div>
-                  <div className="text-sm text-gray-500">{item.desc}</div>
+                  <div className="font-medium tracking-wide text-stone-800">
+                    {item.title}
+                  </div>
+                  <div className="text-sm font-light text-stone-500">
+                    {item.desc}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right Side: Login Form */}
-        <div className="mx-auto w-full max-w-md lg:mx-0">
-          <div className="mb-8 text-center lg:hidden">
-            <h1 className="text-3xl font-black text-gray-900">My Jewelry</h1>
-            <p className="mt-2 text-gray-500">
-              Тавтай морил! Дансандаа нэвтэрнэ үү.
-            </p>
-          </div>
+        <div className="animate-in fade-in zoom-in-95 slide-in-from-right-8 relative mx-auto w-full max-w-md duration-1000 ease-out lg:mx-0">
+          <div className="absolute -inset-4 z-0 animate-pulse rounded-[3rem] bg-gradient-to-tr from-[#C5A358]/10 via-transparent to-transparent blur-2xl duration-[4000ms]" />
 
-          <form action={formAction}>
-            <div className="space-y-6 rounded-[2rem] border border-stone-100 bg-white p-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] lg:p-12">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-black text-gray-900">Нэвтрэх</h2>
-                <p className="text-sm text-gray-500">
-                  Мэдээллээ оруулан өөрийн бүртгэл рүү нэвтэрнэ үү.
+          <form
+            action={formAction}
+            className="relative z-10 transition-transform duration-500 hover:scale-[1.005]"
+          >
+            <div className="space-y-8 rounded-[2.5rem] border border-white bg-white/80 p-10 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] backdrop-blur-xl lg:p-14">
+              <div className="space-y-3">
+                <h2 className="font-serif text-4xl font-light text-stone-900">
+                  Нэвтрэх
+                </h2>
+                <div className="h-0.5 w-8 bg-[#C5A358] transition-all duration-700 group-focus-within:w-16" />
+                <p className="text-sm font-light text-stone-500">
+                  Lume-ийн ертөнцөд дахин тавтай морил
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <div className="space-y-1.5">
+              <div className="space-y-5">
+                <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both space-y-2 delay-[700ms] duration-700">
                   <Label
                     htmlFor="identifier"
-                    className="text-xs font-bold tracking-wider text-gray-600 uppercase"
+                    className="ml-1 text-[10px] font-bold tracking-widest text-stone-400 uppercase"
                   >
-                    И-мэйл эсвэл хэрэглэгчийн нэр
+                    Хэрэглэгчийн мэдээлэл
                   </Label>
                   <Input
                     id="identifier"
                     name="identifier"
                     type="text"
                     required
-                    placeholder="Нэвтрэх нэрээ оруулна уу"
-                    className="h-12 border-stone-200 bg-stone-50/30 focus:border-[#C5A358] focus:ring-[#C5A358]"
+                    placeholder="И-мэйл эсвэл нэр"
+                    className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 px-6 transition-all duration-300 placeholder:font-light focus:border-[#C5A358] focus:bg-white focus:ring-0"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
+                <div className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both space-y-2 delay-[800ms] duration-700">
+                  <div className="flex items-center justify-between px-1">
                     <Label
                       htmlFor="password"
-                      className="text-xs font-bold tracking-wider text-gray-600 uppercase"
+                      className="text-[10px] font-bold tracking-widest text-stone-400 uppercase"
                     >
                       Нууц үг
                     </Label>
                     <Link
                       href="/forgot-password"
-                      className="text-xs font-medium text-[#C5A358] hover:underline"
+                      className="text-[10px] font-bold tracking-widest text-[#C5A358] uppercase transition-opacity hover:opacity-70"
                     >
-                      Нууц үг мартсан уу?
+                      Мартсан уу?
                     </Link>
                   </div>
                   <Input
@@ -140,12 +145,12 @@ function SigninFormContent() {
                     type="password"
                     required
                     placeholder="••••••••"
-                    className="h-12 border-stone-200 bg-stone-50/30 focus:border-[#C5A358] focus:ring-[#C5A358]"
+                    className="h-14 rounded-2xl border-stone-100 bg-stone-50/50 px-6 transition-all duration-300 focus:border-[#C5A358] focus:bg-white focus:ring-0"
                   />
                 </div>
 
                 {formState?.message && (
-                  <div className="animate-in fade-in slide-in-from-top-1 rounded-xl border border-red-100 bg-red-50 p-3 text-center text-xs font-medium text-red-600">
+                  <div className="animate-in fade-in zoom-in-95 rounded-xl border border-red-100 bg-red-50/50 p-4 text-center text-xs font-medium text-red-600 duration-300">
                     {formState.message}
                   </div>
                 )}
@@ -154,35 +159,31 @@ function SigninFormContent() {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="h-12 w-full rounded-xl bg-[#1a1a1a] text-sm font-bold text-white transition-all hover:bg-black active:scale-[0.98]"
+                className="group relative h-14 w-full overflow-hidden rounded-2xl bg-stone-900 text-sm font-bold tracking-widest text-white transition-all duration-500 hover:bg-stone-800 hover:shadow-lg active:scale-[0.98]"
               >
-                {isPending ? (
-                  <div className="flex items-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    Түр хүлээнэ үү...
-                  </div>
-                ) : (
-                  'Нэвтрэх'
-                )}
+                <div className="relative z-10 flex items-center justify-center gap-2">
+                  {isPending ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                      <span>БОЛОВСРУУЛЖ БАЙНА</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>НЭВТРЭХ</span>
+                      <ArrowRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-1" />
+                    </>
+                  )}
+                </div>
               </Button>
 
-              <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-stone-100" />
-                </div>
-                <div className="relative flex justify-center text-[10px] font-bold tracking-widest text-stone-400 uppercase">
-                  <span className="bg-white px-4">Эсвэл</span>
-                </div>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-gray-500">
-                  Бүртгэл байхгүй юу?{' '}
+              <div className="animate-in fade-in fill-mode-both pt-4 text-center delay-[1100ms]">
+                <p className="text-xs font-light text-stone-500">
+                  Бүртгэлгүй юу?{' '}
                   <Link
                     href={`/signup${searchParams.get('redirect') ? `?redirect=${searchParams.get('redirect')}` : ''}`}
-                    className="font-bold text-[#C5A358] transition-colors hover:text-[#A68945]"
+                    className="ml-1 font-bold text-[#C5A358] transition-colors duration-300 hover:text-stone-900"
                   >
-                    Бүртгүүлэх
+                    Шинээр бүртгүүлэх
                   </Link>
                 </p>
               </div>
@@ -198,8 +199,10 @@ export function SigninForm() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#FDFBF7]">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-[#C5A358]" />
+        <div className="flex min-h-screen items-center justify-center bg-[#F9F7F2]">
+          <div className="flex h-12 w-12 animate-pulse items-center justify-center rounded-full border border-[#C5A358]/20">
+            <div className="h-2 w-2 rounded-full bg-[#C5A358]" />
+          </div>
         </div>
       }
     >

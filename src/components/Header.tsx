@@ -18,6 +18,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useCartStore } from '@/src/store/useCartStore';
 import { CartPanel } from './cart/CartPanel';
 import { WishlistButton } from './WishListButton';
+import LumeLogo from './LumeLogo';
 
 interface Metal {
   id: number;
@@ -98,12 +99,8 @@ export default function Header({ categories }: { categories: Category[] }) {
             >
               <Menu className="h-5 w-5 text-gray-700 transition-colors group-hover:text-rose-600" />
             </button>
-            <Link
-              href="/"
-              className="group flex items-center gap-1 text-base font-black tracking-tight text-gray-900 transition-all hover:text-rose-600 md:gap-1.5 md:text-xl"
-            >
-              <Sparkles className="h-4 w-4 text-rose-600 transition-transform group-hover:scale-110 md:h-5 md:w-5" />
-              LUME
+            <Link href="/" className="group flex items-center">
+              <LumeLogo className="h-7 w-auto text-[#5c5241] transition-colors group-hover:text-[#8c7a5b] md:h-9" />
             </Link>
           </div>
 

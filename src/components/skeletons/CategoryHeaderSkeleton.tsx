@@ -1,13 +1,10 @@
-// components/skeletons/CategoryCardSkeleton.tsx
 import { Skeleton } from '@/src/components/skeletons/Skeleton';
 
 export function CategoryCardSkeleton() {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-white">
-      {/* Image */}
       <Skeleton className="aspect-[3/4] w-full rounded-t-2xl" />
 
-      {/* Content */}
       <div className="space-y-3 p-4">
         <Skeleton className="h-5 w-full rounded" />
         <Skeleton className="h-5 w-3/4 rounded" />
