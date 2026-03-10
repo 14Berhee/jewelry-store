@@ -1,36 +1,26 @@
+import { Suspense } from 'react';
+import ProductGridContainer from '../components/productCards/ProductGridContainer';
+import LumeIntro from '../components/LumeIntro';
 import Hero from '../components/Hero';
 import Bar from '../components/Bar';
-import HeadCategory from '../components/HeadCategory';
-import { prisma } from '@/lib/prisma';
-import ProductGrid from '../components/productCards/ProductGrid';
+import HeadCategoryLoader from '../components/HeadCategoryLoader';
+import { HeadCategorySkeleton } from '../components/skeletons/HeadCategorySkeleton';
+import ProductGridSkeleton from '../components/skeletons/ProductGridSkeleton';
 
-export const dynamic = 'force-dynamic';
-
-export default async function HomePage() {
-  const categories = await prisma.category.findMany({
-    include: {
-      metals: true,
-    },
-  });
-  const products = await prisma.product.findMany({
-    where: {
-      deletedAt: null,
-    },
-    include: {
-      images: {
-        orderBy: { order: 'asc' },
-      },
-      metal: true,
-      category: true,
-    },
-  });
-
+export default function HomePage() {
   return (
-    <main className="bg-white bg-gradient-to-br from-amber-50 via-white to-rose-50 text-neutral-900">
+    <main className="bg-white bg-gradient-to-br ..." suppressHydrationWarning>
+      <LumeIntro />
       <Hero />
       <Bar />
-      <HeadCategory categories={categories} />
-      <ProductGrid products={products} />
+
+      <Suspense fallback={<HeadCategorySkeleton />}>
+        <HeadCategoryLoader />
+      </Suspense>
+
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <ProductGridContainer />
+      </Suspense>
     </main>
   );
 }
